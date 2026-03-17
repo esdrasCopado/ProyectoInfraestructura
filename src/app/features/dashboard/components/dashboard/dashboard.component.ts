@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subject, combineLatest } from 'rxjs';
-import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, startWith, takeUntil } from 'rxjs/operators';
 import { DatePipe } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -67,7 +67,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.cargarDashboard();
     this.escucharFiltros();
   }
 
@@ -91,9 +90,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   private escucharFiltros(): void {
     combineLatest([
-      this.busquedaCtrl.valueChanges.pipe(debounceTime(400), distinctUntilChanged()),
-      this.estadoCtrl.valueChanges,
-      this.etapaCtrl.valueChanges
+      this.busquedaCtrl.valueChanges.pipe(debounceTime(400), distinctUntilChanged(), startWith('')),
+      this.estadoCtrl.valueChanges.pipe(startWith('')),
+      this.etapaCtrl.valueChanges.pipe(startWith(''))
     ]).pipe(takeUntil(this.destroy$))
       .subscribe(([busqueda, estado, etapa]) => {
         this.cargarDashboard({

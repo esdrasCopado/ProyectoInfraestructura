@@ -7,6 +7,9 @@ export interface EtapaSolicitud {
   estado: EstadoEtapa;
   fechaActualizacion?: string;
   responsable?: string;
+  vCores?: number;
+  memoriaRam?: number;
+  almacenamiento?: number;
 }
 
 export interface Solicitud {

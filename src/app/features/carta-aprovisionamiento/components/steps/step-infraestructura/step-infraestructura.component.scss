@@ -49,14 +49,16 @@
   grid-template-columns: 1fr 1fr;
   column-gap: 16px;
   align-items: start;
+}
 
-  .field-full {
-    grid-column: 1 / -1;
-  }
+.field-wrap {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 
-  .field-error.field-full {
-    grid-column: 1 / -1;
-  }
+  &.field-full { grid-column: 1 / -1; }
+
+  mat-form-field { width: 100%; }
 }
 
 @media (max-width: 600px) {

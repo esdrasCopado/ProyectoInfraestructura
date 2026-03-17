@@ -1,0 +1,165 @@
+<div class="detalle-container">
+
+  @if (cargando) {
+    <div class="estado-carga">
+      <mat-spinner diameter="36"></mat-spinner>
+      <span>Cargando expediente...</span>
+    </div>
+  } @else if (error) {
+    <div class="estado-error">No se pudo cargar el expediente.</div>
+  } @else if (solicitud) {
+
+    <!-- Encabezado -->
+    <div class="exp-header">
+      <div>
+        <p class="exp-folio">{{ solicitud.folio }} · Registrada el {{ solicitud.fechaRegistro | date:'dd/MM/yyyy' }}</p>
+        <h1 class="exp-title">{{ solicitud.dependencia }}</h1>
+        <p class="exp-sub">{{ solicitud.nombreServidor }}</p>
+      </div>
+      <span class="badge badge-{{ solicitud.estado }}">
+        {{ solicitud.estado === 'en-progreso' ? 'En progreso' :
+           solicitud.estado === 'pendiente'   ? 'Pend. respuesta' : 'Completada' }}
+      </span>
+    </div>
+
+    <!-- Info rápida -->
+    <div class="info-grid">
+      <div class="info-card">
+        <p class="info-label">Etapa actual</p>
+        <p class="info-value">{{ solicitud.etapaActual }} · {{ etapaActualNombre }}</p>
+      </div>
+      <div class="info-card">
+        <p class="info-label">Última actualización</p>
+        <p class="info-value">{{ solicitud.fechaActualizacion | date:'dd/MM/yyyy' }}</p>
+      </div>
+    </div>
+
+    <!-- Layout principal -->
+    <div class="layout">
+
+      <!-- Timeline -->
+      <div class="card">
+        <p class="card-title">Seguimiento del proceso</p>
+        <div class="timeline">
+          @for (etapa of solicitud.etapas; track etapa.numero; let last = $last) {
+            <div class="t-item">
+              <div class="t-left">
+                <div class="t-dot {{ claseEstado(etapa.estado) }}">
+                  @if (etapa.estado === 'completada') { ✓ }
+                  @else { {{ etapa.numero }} }
+                </div>
+                @if (!last) {
+                  <div class="t-line {{ etapa.estado === 'completada' ? 't-line-done' : '' }}"></div>
+                }
+              </div>
+              <div class="t-content">
+                <p class="t-name">
+                  {{ etapa.nombre }}
+                  @if (etapa.responsable) {
+                    <span class="t-role">{{ etapa.responsable }}</span>
+                  }
+                </p>
+                <p class="t-meta">
+                  {{ etapa.fechaActualizacion ? (etapa.fechaActualizacion | date:'dd/MM/yyyy') : 'Pendiente' }}
+                </p>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Panel de acción -->
+      <div class="card">
+        @if (puedeActuar && panelForm) {
+          <p class="panel-title">Acción requerida · Etapa {{ solicitud.etapaActual }}</p>
+
+          <form [formGroup]="panelForm">
+
+            <!-- Etapa 2: Validación de recursos -->
+            @if (solicitud.etapaActual === 2) {
+              <mat-form-field appearance="outline">
+                <mat-label>vCores</mat-label>
+                <input matInput type="number" formControlName="vCores">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Memoria RAM (GB)</mat-label>
+                <input matInput type="number" formControlName="memoriaRam">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Almacenamiento (GB)</mat-label>
+                <input matInput type="number" formControlName="almacenamiento">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>IP asignada</mat-label>
+                <input matInput formControlName="ip" placeholder="Ej. 10.0.0.1">
+              </mat-form-field>
+            }
+
+            <!-- Etapa 5: VPN -->
+            @if (solicitud.etapaActual === 5) {
+              <mat-form-field appearance="outline">
+                <mat-label>Tipo de VPN</mat-label>
+                <mat-select formControlName="tipoVpn">
+                  <mat-option value="proveedor">Proveedor</mat-option>
+                  <mat-option value="publico">Servidor público</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Vigencia</mat-label>
+                <mat-select formControlName="vigencia">
+                  <mat-option value="30">30 días</mat-option>
+                  <mat-option value="60">60 días</mat-option>
+                  <mat-option value="90">90 días</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Responsable VPN</mat-label>
+                <input matInput formControlName="responsable">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Correo electrónico</mat-label>
+                <input matInput formControlName="correo" type="email">
+              </mat-form-field>
+            }
+
+            <!-- Etapa 6: Subdominio -->
+            @if (solicitud.etapaActual === 6) {
+              <mat-form-field appearance="outline">
+                <mat-label>Subdominio solicitado</mat-label>
+                <input matInput formControlName="subdominioSolicitado"
+                       placeholder="Ej. miapp.sonora.gob.mx">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Puerto</mat-label>
+                <input matInput formControlName="puerto" placeholder="Ej. 8080">
+              </mat-form-field>
+            }
+
+            <button mat-flat-button color="primary"
+                    class="btn-guardar"
+                    [disabled]="panelForm.invalid || guardando"
+                    (click)="onGuardar()">
+              {{ guardando ? 'Guardando...' : 'Guardar y avanzar etapa' }}
+            </button>
+
+          </form>
+
+        } @else {
+          <p class="panel-title">Estado de la etapa actual</p>
+          <p class="sin-accion">
+            No tienes acciones pendientes en esta etapa.
+            El proceso está en espera de otro rol.
+          </p>
+        }
+      </div>
+
+    </div>
+  }
+</div>
