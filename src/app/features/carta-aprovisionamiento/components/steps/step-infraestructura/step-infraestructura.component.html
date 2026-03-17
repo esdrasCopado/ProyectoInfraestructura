@@ -1,0 +1,99 @@
+<div class="step-container">
+
+  <!-- Sección: Configuración de red -->
+  <section class="form-section" aria-labelledby="red-heading">
+    <h3 id="red-heading" class="section-title">
+      <span class="section-number">1</span>
+      Configuración de red
+    </h3>
+    <p class="section-desc">Dominio, puerto y opciones de seguridad del servidor</p>
+
+    <div [formGroup]="form" class="fields-grid">
+
+      <mat-form-field appearance="outline">
+        <mat-label>Subdominio solicitado</mat-label>
+        <input matInput formControlName="subdominioSolicitado"
+               autocomplete="off"
+               placeholder="Ej. app.dominio.gob.mx">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Puerto</mat-label>
+        <input matInput formControlName="puerto"
+               autocomplete="off"
+               placeholder="Ej. 8080">
+      </mat-form-field>
+
+      <mat-checkbox formControlName="requiereSSL" class="field-full">
+        Requiere SSL
+      </mat-checkbox>
+
+    </div>
+  </section>
+
+  <hr class="section-divider" aria-hidden="true">
+
+  <!-- Sección: Responsable de VPN -->
+  <section class="form-section" aria-labelledby="vpn-heading">
+    <h3 id="vpn-heading" class="section-title">
+      <span class="section-number">2</span>
+      Responsable de VPN
+    </h3>
+    <p class="section-desc">Datos de contacto del responsable del acceso VPN</p>
+
+    <div [formGroup]="form" class="fields-grid">
+
+      <mat-form-field appearance="outline">
+        <mat-label>Responsable</mat-label>
+        <input matInput formControlName="vpnResponsable"
+               autocomplete="name"
+               [attr.aria-describedby]="isInvalid('vpnResponsable') ? 'vpn-responsable-error' : null"
+               [attr.aria-invalid]="isInvalid('vpnResponsable')">
+      </mat-form-field>
+      @if (hasError('vpnResponsable', 'required')) {
+        <span id="vpn-responsable-error" class="field-error" role="alert">Este campo es obligatorio</span>
+      }
+
+      <mat-form-field appearance="outline">
+        <mat-label>Cargo</mat-label>
+        <input matInput formControlName="vpnCargo"
+               autocomplete="organization-title"
+               [attr.aria-describedby]="isInvalid('vpnCargo') ? 'vpn-cargo-error' : null"
+               [attr.aria-invalid]="isInvalid('vpnCargo')">
+      </mat-form-field>
+      @if (hasError('vpnCargo', 'required')) {
+        <span id="vpn-cargo-error" class="field-error" role="alert">Este campo es obligatorio</span>
+      }
+
+      <mat-form-field appearance="outline">
+        <mat-label>Teléfono de contacto</mat-label>
+        <input matInput formControlName="vpnTelefono"
+               appPhoneMask
+               type="tel"
+               placeholder="(333) 333-3333"
+               autocomplete="tel"
+               [attr.aria-describedby]="isInvalid('vpnTelefono') ? 'vpn-telefono-error' : null"
+               [attr.aria-invalid]="isInvalid('vpnTelefono')">
+      </mat-form-field>
+      <span id="vpn-telefono-error" class="field-error" role="alert">
+        @if (hasError('vpnTelefono', 'required')) { Este campo es obligatorio }
+        @else if (hasError('vpnTelefono', 'pattern')) { Formato requerido: (XXX) XXX-XXXX }
+      </span>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Correo electrónico</mat-label>
+        <input matInput formControlName="vpnCorreo"
+               type="email"
+               autocomplete="email"
+               [attr.aria-describedby]="isInvalid('vpnCorreo') ? 'vpn-correo-error' : null"
+               [attr.aria-invalid]="isInvalid('vpnCorreo')">
+      </mat-form-field>
+      <span id="vpn-correo-error" class="field-error" role="alert">
+        @if (hasError('vpnCorreo', 'required')) { Este campo es obligatorio }
+        @else if (hasError('vpnCorreo', 'email')) { Ingresa un correo electrónico válido }
+      </span>
+
+    </div>
+  </section>
+
+</div>

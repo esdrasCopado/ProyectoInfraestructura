@@ -1,0 +1,118 @@
+.stepper-wrapper {
+  max-width: 800px;
+  margin: 2rem auto;
+}
+
+/* ── Barra del stepper: solo números ── */
+::ng-deep {
+  .mat-stepper-horizontal {
+    background: transparent;
+  }
+
+  /* Ocultar texto de label, mostrar solo el número */
+  .mat-step-label {
+    display: none !important;
+  }
+
+  /* Círculo del paso */
+  .mat-step-icon {
+    background-color: #ccc;
+    color: #fff;
+    font-weight: 600;
+  }
+
+  /* Paso activo */
+  .mat-step-icon-selected {
+    background-color: #860C4A !important;
+  }
+
+  /* Paso completado */
+  .mat-step-icon-state-done,
+  .mat-step-icon-state-edit {
+    background-color: #860C4A !important;
+    opacity: 0.65;
+  }
+
+  /* Línea conectora */
+  .mat-stepper-horizontal-line {
+    border-top-color: #ddd;
+    flex: 1;
+    min-width: 20px;
+  }
+
+  /* Cabecera del stepper (fila de números) */
+  .mat-horizontal-stepper-header-container {
+    padding: 16px 24px 8px;
+    background: #fff;
+    border-radius: 8px 8px 0 0;
+    border-bottom: 1px solid #eee;
+  }
+
+  /* Área de contenido del paso */
+  .mat-horizontal-content-container {
+    background: #fff;
+    border-radius: 0 0 8px 8px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+    overflow: visible;
+  }
+}
+
+/* ── Encabezado dentro del contenido del paso ── */
+.step-header {
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.step-badge {
+  display: inline-block;
+  background-color: #860C4A;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 20px;
+  margin-bottom: 8px;
+}
+
+.step-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 4px 0 6px;
+}
+
+.step-subtitle {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* ── Acciones del paso ── */
+.step-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.btn-back {
+  color: #6b7280;
+  font-weight: 400;
+}
+
+/* ── Campos del formulario ── */
+.mat-mdc-form-field {
+  display: block;
+  width: 100%;
+  margin-bottom: 8px;
+
+  .mat-mdc-form-field-subscript-wrapper {
+    display: none;
+  }
+}

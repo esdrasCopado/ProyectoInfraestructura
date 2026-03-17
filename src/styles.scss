@@ -1,1 +1,147 @@
 /* You can add global styles to this file, and also import other style files */
+
+:root {
+  --primary:      #85142b;
+  --primary-dark: #6a1022;
+  --secondary:    #b38e5d;
+  --bg-light:     #f4f4f4;
+  --text-dark:    #333;
+
+  /* Estados de formulario */
+  --state-focus:  #1976d2; /* azul  */
+  --state-valid:  #388e3c; /* verde */
+  --state-error:  #d32f2f; /* rojo  */
+}
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow-y: auto;
+}
+
+/* Compensar el header fijo de 96px */
+.main-content {
+  padding-top: 96px;
+}
+
+body {
+  font-family: 'IBM Plex Sans', 'Segoe UI', sans-serif;
+  background-color: var(--bg-light);
+  color: var(--text-dark);
+  line-height: 1.6;
+}
+
+/* Propaga IBM Plex Sans a todos los componentes de Angular Material */
+.mat-typography,
+.mat-mdc-form-field,
+.mat-mdc-select,
+.mat-mdc-option,
+.mat-step-label,
+.mat-mdc-button,
+.mat-mdc-flat-button {
+  font-family: 'IBM Plex Sans', 'Segoe UI', sans-serif !important;
+}
+
+/* Fix: label flotante de mat-form-field no se recorta */
+.mat-mdc-form-field {
+  display: block;
+  width: 100%;
+  margin-bottom: 8px;
+
+  /* Quita el espacio reservado para mat-error interno */
+  .mat-mdc-form-field-subscript-wrapper {
+    display: none;
+  }
+}
+
+/* Mensaje de error fuera del mat-form-field */
+.field-error {
+  display: block;
+  font-size: 12px;
+  color: #f44336;
+  margin-top: 2px;
+  margin-bottom: 8px;
+  padding-left: 16px;
+}
+
+/* Espacio superior en contenedores de pasos para que el label tenga sitio al flotar */
+[formGroup] {
+  display: flex;
+  flex-direction: column;
+  padding-top: 0.5rem;
+  overflow: visible;
+}
+
+/* ── Angular Material — estados de formulario ── */
+
+/* Botones primary */
+.mat-mdc-raised-button.mat-primary,
+.mat-mdc-flat-button.mat-primary {
+  --mdc-filled-button-container-color: var(--primary);
+  --mdc-filled-button-hover-container-color: var(--primary-dark);
+}
+
+/* Stepper: paso activo */
+.mat-step-icon-selected {
+  background-color: var(--state-focus) !important;
+}
+
+/* Stepper: paso completado */
+.mat-step-icon-state-done,
+.mat-step-icon-state-edit {
+  background-color: var(--state-valid) !important;
+}
+
+/* ── FOCUS — label azul ── */
+.mat-mdc-form-field.mat-focused:not(.mat-form-field-invalid) {
+  .mat-mdc-floating-label { color: var(--state-focus) !important; }
+}
+
+/* ── VALID — label verde ── */
+.mat-mdc-form-field.ng-valid.ng-dirty:not(.mat-focused):not(.mat-form-field-invalid) {
+  .mat-mdc-floating-label { color: var(--state-valid) !important; }
+}
+
+/* El color de error lo maneja Angular Material por defecto */
+
+/* Fix: el área de error (subscript) no debe quedar recortada dentro del stepper */
+.mat-horizontal-stepper-content,
+.mat-horizontal-content-container {
+  overflow: visible !important;
+}
+
+.mat-mdc-form-field .mat-mdc-form-field-subscript-wrapper {
+  overflow: visible;
+}
+
+/* Títulos h3 con acento secundario */
+h3 {
+  color: var(--primary);
+  border-left: 4px solid var(--secondary);
+  padding-left: 10px;
+  margin-top: 0;
+}
+
+/* ── Stepper — labels legibles ── */
+.mat-stepper-horizontal {
+  .mat-step-label {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+    overflow: visible;
+    text-overflow: unset;
+  }
+
+  .mat-step-label-selected {
+    font-weight: 600;
+    color: var(--primary);
+  }
+
+  /* Evita que la línea conectora desaparezca en pantallas ajustadas */
+  .mat-stepper-horizontal-line {
+    flex: 1;
+    min-width: 16px;
+  }
+}

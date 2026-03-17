@@ -1,0 +1,146 @@
+<div class="step-container">
+
+  <!-- Sección: Configuración base -->
+  <section class="form-section" aria-labelledby="config-heading">
+    <h3 id="config-heading" class="section-title">
+      <span class="section-number">1</span>
+      Configuración base
+    </h3>
+    <p class="section-desc">Tipo de requerimiento y sistema operativo del servidor</p>
+
+    <div [formGroup]="form" class="fields-grid">
+
+      <mat-form-field appearance="outline">
+        <mat-label>Tipo de requerimiento</mat-label>
+        <mat-select formControlName="tipoRequerimiento"
+                    [attr.aria-describedby]="isInvalid('tipoRequerimiento') ? 'tipo-req-error' : null">
+          <mat-option value="estandar">Estándar</mat-option>
+          <mat-option value="especial">Especial</mat-option>
+        </mat-select>
+      </mat-form-field>
+      @if (hasError('tipoRequerimiento', 'required')) {
+        <span id="tipo-req-error" class="field-error" role="alert">Este campo es obligatorio</span>
+      }
+
+      <mat-form-field appearance="outline">
+        <mat-label>Modalidad</mat-label>
+        <mat-select formControlName="modalidad"
+                    [attr.aria-describedby]="isInvalid('modalidad') ? 'modalidad-error' : null">
+          <mat-option value="nuevo">Nuevo</mat-option>
+          <mat-option value="renovacion">Renovación</mat-option>
+        </mat-select>
+      </mat-form-field>
+      @if (hasError('modalidad', 'required')) {
+        <span id="modalidad-error" class="field-error" role="alert">Este campo es obligatorio</span>
+      }
+
+      <mat-form-field appearance="outline">
+        <mat-label>Sistema operativo</mat-label>
+        <mat-select formControlName="sistemaOperativo"
+                    [attr.aria-describedby]="isInvalid('sistemaOperativo') ? 'so-error' : null">
+          <mat-option value="windows">Windows</mat-option>
+          <mat-option value="linux">Linux</mat-option>
+          <mat-option value="otro">Otro</mat-option>
+        </mat-select>
+      </mat-form-field>
+      @if (hasError('sistemaOperativo', 'required')) {
+        <span id="so-error" class="field-error" role="alert">Este campo es obligatorio</span>
+      }
+
+      @if (sistemaOperativo === 'otro') {
+        <mat-form-field appearance="outline">
+          <mat-label>Especifica el sistema operativo</mat-label>
+          <input matInput formControlName="sistemaOperativoOtro" autocomplete="off">
+        </mat-form-field>
+      }
+
+    </div>
+  </section>
+
+  <hr class="section-divider" aria-hidden="true">
+
+  <!-- Sección: Recursos de cómputo -->
+  <section class="form-section" aria-labelledby="recursos-heading">
+    <h3 id="recursos-heading" class="section-title">
+      <span class="section-number">2</span>
+      Recursos de cómputo
+    </h3>
+    <p class="section-desc">Capacidad de procesamiento, memoria y almacenamiento requerida</p>
+
+    <div [formGroup]="form" class="fields-grid">
+
+      <mat-form-field appearance="outline">
+        <mat-label>vCores</mat-label>
+        <input matInput type="number" formControlName="vCores" min="1"
+               [attr.aria-describedby]="isInvalid('vCores') ? 'vcores-error' : null"
+               [attr.aria-invalid]="isInvalid('vCores')">
+      </mat-form-field>
+      <span id="vcores-error" class="field-error" role="alert">
+        @if (hasError('vCores', 'required')) { Este campo es obligatorio }
+        @else if (hasError('vCores', 'min')) { El valor mínimo es 1 }
+      </span>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Memoria RAM (GB)</mat-label>
+        <input matInput type="number" formControlName="memoriaRam" min="1"
+               [attr.aria-describedby]="isInvalid('memoriaRam') ? 'ram-error' : null"
+               [attr.aria-invalid]="isInvalid('memoriaRam')">
+      </mat-form-field>
+      <span id="ram-error" class="field-error" role="alert">
+        @if (hasError('memoriaRam', 'required')) { Este campo es obligatorio }
+        @else if (hasError('memoriaRam', 'min')) { El valor mínimo es 1 GB }
+      </span>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Almacenamiento (GB)</mat-label>
+        <input matInput type="number" formControlName="almacenamiento" min="1"
+               [attr.aria-describedby]="isInvalid('almacenamiento') ? 'storage-error' : null"
+               [attr.aria-invalid]="isInvalid('almacenamiento')">
+      </mat-form-field>
+      <span id="storage-error" class="field-error" role="alert">
+        @if (hasError('almacenamiento', 'required')) { Este campo es obligatorio }
+        @else if (hasError('almacenamiento', 'min')) { El valor mínimo es 1 GB }
+      </span>
+
+    </div>
+  </section>
+
+  <hr class="section-divider" aria-hidden="true">
+
+  <!-- Sección: Componentes adicionales -->
+  <section class="form-section" aria-labelledby="adicionales-heading">
+    <h3 id="adicionales-heading" class="section-title">
+      <span class="section-number">3</span>
+      Componentes adicionales
+    </h3>
+    <p class="section-desc">Servicios opcionales requeridos por la aplicación</p>
+
+    <div [formGroup]="form" class="fields-grid">
+
+      <mat-form-field appearance="outline">
+        <mat-label>Motor de BD</mat-label>
+        <input matInput formControlName="motorBD" autocomplete="off"
+               placeholder="Ej. MySQL, PostgreSQL">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Puertos</mat-label>
+        <input matInput formControlName="puertos" autocomplete="off"
+               placeholder="Ej. 80, 443, 8080">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Integraciones</mat-label>
+        <input matInput formControlName="integraciones" autocomplete="off"
+               placeholder="Ej. Active Directory, API externa">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="field-full">
+        <mat-label>Otras especificaciones</mat-label>
+        <textarea matInput formControlName="otrasSpecs" rows="3" autocomplete="off"></textarea>
+      </mat-form-field>
+
+    </div>
+  </section>
+
+</div>
