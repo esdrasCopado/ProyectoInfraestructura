@@ -10,38 +10,44 @@
 
     <div [formGroup]="form" class="fields-grid">
 
-      <mat-form-field appearance="outline">
-        <mat-label>Nombre completo</mat-label>
-        <input matInput formControlName="firmante"
-               autocomplete="name"
-               [attr.aria-describedby]="isInvalid('firmante') ? 'firmante-error' : null"
-               [attr.aria-invalid]="isInvalid('firmante')">
-      </mat-form-field>
-      @if (hasError('firmante', 'required')) {
-        <span id="firmante-error" class="field-error" role="alert">Este campo es obligatorio</span>
-      }
+      <div class="field-wrap">
+        <mat-form-field appearance="outline">
+          <mat-label>Nombre completo</mat-label>
+          <input matInput formControlName="firmante"
+                 autocomplete="name"
+                 [attr.aria-describedby]="isInvalid('firmante') ? 'firmante-error' : null"
+                 [attr.aria-invalid]="isInvalid('firmante')">
+        </mat-form-field>
+        @if (hasError('firmante', 'required')) {
+          <span id="firmante-error" class="field-error" role="alert">⚠ Ingresa el nombre completo del firmante</span>
+        }
+      </div>
 
-      <mat-form-field appearance="outline">
-        <mat-label>Número de empleado</mat-label>
-        <input matInput formControlName="numEmpleado"
-               autocomplete="off"
-               [attr.aria-describedby]="isInvalid('numEmpleado') ? 'num-empleado-error' : null"
-               [attr.aria-invalid]="isInvalid('numEmpleado')">
-      </mat-form-field>
-      @if (hasError('numEmpleado', 'required')) {
-        <span id="num-empleado-error" class="field-error" role="alert">Este campo es obligatorio</span>
-      }
+      <div class="field-wrap">
+        <mat-form-field appearance="outline">
+          <mat-label>Número de empleado</mat-label>
+          <input matInput formControlName="numEmpleado"
+                 autocomplete="off"
+                 [attr.aria-describedby]="isInvalid('numEmpleado') ? 'num-empleado-error' : null"
+                 [attr.aria-invalid]="isInvalid('numEmpleado')">
+        </mat-form-field>
+        @if (hasError('numEmpleado', 'required')) {
+          <span id="num-empleado-error" class="field-error" role="alert">⚠ Ingresa el número de empleado</span>
+        }
+      </div>
 
-      <mat-form-field appearance="outline" class="field-full">
-        <mat-label>Puesto</mat-label>
-        <input matInput formControlName="puestoFirmante"
-               autocomplete="organization-title"
-               [attr.aria-describedby]="isInvalid('puestoFirmante') ? 'puesto-error' : null"
-               [attr.aria-invalid]="isInvalid('puestoFirmante')">
-      </mat-form-field>
-      @if (hasError('puestoFirmante', 'required')) {
-        <span id="puesto-error" class="field-error field-full" role="alert">Este campo es obligatorio</span>
-      }
+      <div class="field-wrap field-full">
+        <mat-form-field appearance="outline">
+          <mat-label>Puesto</mat-label>
+          <input matInput formControlName="puestoFirmante"
+                 autocomplete="organization-title"
+                 [attr.aria-describedby]="isInvalid('puestoFirmante') ? 'puesto-error' : null"
+                 [attr.aria-invalid]="isInvalid('puestoFirmante')">
+        </mat-form-field>
+        @if (hasError('puestoFirmante', 'required')) {
+          <span id="puesto-error" class="field-error" role="alert">⚠ Ingresa el puesto del firmante</span>
+        }
+      </div>
 
     </div>
   </section>
@@ -67,7 +73,7 @@
       </mat-checkbox>
       @if (hasError('aceptaTerminos', 'required')) {
         <span id="terminos-error" class="field-error" role="alert">
-          Debes aceptar los términos para continuar
+          ⚠ Debes aceptar los términos para continuar
         </span>
       }
     </div>

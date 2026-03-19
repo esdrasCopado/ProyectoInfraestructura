@@ -14,6 +14,12 @@ export const routes: Routes = [
         .then(m => m.CartaStepperComponent)
   },
   {
+    path: 'expediente/:id',
+    loadComponent: () =>
+      import('./features/dashboard/components/expediente-detalle/expediente-detalle.component')
+        .then(m => m.ExpedienteDetalleComponent)
+  },
+  {
     path: '',
     redirectTo: 'carta-aprovisionamiento',
     pathMatch: 'full'
