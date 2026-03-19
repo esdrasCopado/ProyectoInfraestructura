@@ -10,8 +10,9 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 15px;
-  font-weight: 500;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 17px;
+  font-weight: 600;
   color: var(--primary);
   border-left: 4px solid var(--secondary);
   padding-left: 10px;
@@ -27,13 +28,13 @@
   border-radius: 50%;
   background-color: var(--secondary);
   color: white;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
   flex-shrink: 0;
 }
 
 .section-desc {
-  font-size: 12px;
+  font-size: 14px;
   color: #6b7280;
   margin: 0 0 16px 14px;
   line-height: 1.6;

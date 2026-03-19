@@ -25,13 +25,50 @@ html, body {
 }
 
 body {
-  font-family: 'IBM Plex Sans', 'Segoe UI', sans-serif;
+  font-family: 'Roboto', 'Segoe UI', sans-serif;
+  font-size: 16px;
   background-color: var(--bg-light);
   color: var(--text-dark);
   line-height: 1.6;
 }
 
-/* Propaga IBM Plex Sans a todos los componentes de Angular Material */
+/* ── Escala tipográfica ── */
+h1 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800;
+  font-size: 2rem;
+  line-height: 1.4;
+}
+
+h2 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 1.8rem;
+  line-height: 1.4;
+}
+
+h3 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 1.6rem;
+  line-height: 1.4;
+}
+
+h4 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  font-size: 1.4rem;
+  line-height: 1.4;
+}
+
+h5 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+/* Propaga Roboto a todos los componentes de Angular Material */
 .mat-typography,
 .mat-mdc-form-field,
 .mat-mdc-select,
@@ -39,7 +76,7 @@ body {
 .mat-step-label,
 .mat-mdc-button,
 .mat-mdc-flat-button {
-  font-family: 'IBM Plex Sans', 'Segoe UI', sans-serif !important;
+  font-family: 'Roboto', 'Segoe UI', sans-serif !important;
 }
 
 /* Fix: label flotante de mat-form-field no se recorta */
@@ -120,12 +157,16 @@ h3 {
   border-left: 4px solid var(--secondary);
   padding-left: 10px;
   margin-top: 0;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 1.6rem;
+  line-height: 1.4;
 }
 
 /* ── Stepper — labels legibles ── */
 .mat-stepper-horizontal {
   .mat-step-label {
-    font-family: 'IBM Plex Sans', sans-serif;
+    font-family: 'Roboto', sans-serif;
     font-size: 13px;
     font-weight: 500;
     letter-spacing: 0.01em;
