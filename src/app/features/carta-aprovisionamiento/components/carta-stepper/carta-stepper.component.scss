@@ -1,16 +1,7 @@
 .page-header {
   max-width: 800px;
-  margin: 2rem auto 0;
+  margin: 2rem auto 0.5rem;
   padding: 0 1.5rem;
-
-  .page-title {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: var(--primary);
-    margin: 0 0 4px;
-    line-height: 1.4;
-  }
 
   .page-subtitle {
     font-size: 15px;
@@ -21,52 +12,112 @@
 
 .stepper-wrapper {
   max-width: 800px;
-  margin: 2rem auto;
+  margin: 0 auto 2rem;
 }
 
-/* ── Barra del stepper: solo números ── */
+/* ── Título de sección del stepper ── */
+.stepper-section-title {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #410324;
+  border: 2px solid #410324;
+  display: inline-block;
+  padding: 6px 20px;
+  border-radius: 4px;
+  margin: 0 0 0 24px;
+  background: #fff;
+  position: relative;
+  z-index: 1;
+  bottom: -1px;
+}
+
+/* ── Estilos del stepper ── */
 ::ng-deep {
   .mat-stepper-horizontal {
     background: transparent;
   }
 
-  /* Ocultar texto de label, mostrar solo el número */
+  /* Header de cada paso: icono + label apilados verticalmente */
+  .mat-horizontal-stepper-header {
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 12px 8px !important;
+    height: auto !important;
+  }
+
+  /* Labels visibles — debajo del número */
   .mat-step-label {
-    display: none !important;
+    font-family: 'Roboto', sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    color: #999999;
+    white-space: nowrap;
+    overflow: visible;
+    text-overflow: unset;
+    opacity: 1 !important;
+    min-width: unset;
+    margin-top: 6px !important;
+    padding: 0 !important;
+    text-align: center;
   }
 
-  /* Círculo del paso */
+  /* Label del paso activo — Roboto Bold, color #410324 */
+  .mat-step-label-selected {
+    font-weight: 700 !important;
+    color: #410324 !important;
+  }
+
+  /* Círculo de pasos pendientes — outline #999999 */
   .mat-step-icon {
-    background-color: #ccc;
-    color: #fff;
-    font-weight: 600;
+    background-color: transparent !important;
+    border: 2px solid #999999;
+    color: #999999;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    box-sizing: border-box;
+    flex-shrink: 0;
   }
 
-  /* Paso activo */
-  .mat-step-icon-selected {
-    background-color: #860C4A !important;
-  }
-
-  /* Paso completado */
+  /* Paso completado — relleno #960E53 con palomita */
   .mat-step-icon-state-done,
   .mat-step-icon-state-edit {
-    background-color: #860C4A !important;
-    opacity: 0.65;
+    background-color: #960E53 !important;
+    border-color: #960E53 !important;
+    color: #fff !important;
+    opacity: 1;
   }
 
-  /* Línea conectora */
+  /* Línea conectora base — delgada para pasos pendientes */
   .mat-stepper-horizontal-line {
-    border-top-color: #ddd;
+    border-top-width: 1px;
+    border-top-style: solid;
+    border-top-color: #999999;
     flex: 1;
     min-width: 20px;
+    align-self: flex-start;
+    margin-top: 20px; /* alinea con centro del círculo */
   }
 
-  /* Cabecera del stepper (fila de números) */
+  /* Línea después de paso completado — gruesa, #666666 */
+  .mat-horizontal-stepper-header:has(.mat-step-icon-state-done, .mat-step-icon-state-edit)
+  + .mat-stepper-horizontal-line {
+    border-top-width: 3px;
+    border-top-color: #666666;
+  }
+
+  /* Cabecera del stepper */
   .mat-horizontal-stepper-header-container {
-    padding: 16px 24px 8px;
+    padding: 12px 16px 0;
     background: #fff;
-    border-radius: 8px 8px 0 0;
+    border-radius: 0 8px 0 0;
     border-bottom: 1px solid #eee;
+    border-top: 1px solid #eee;
+    border-right: 1px solid #eee;
+    align-items: flex-start;
   }
 
   /* Área de contenido del paso */

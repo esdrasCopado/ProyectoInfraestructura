@@ -1,9 +1,12 @@
 <div class="page-header">
-  <h1 class="page-title">Solicitud de aprovisionamiento de recursos computacionales</h1>
   <p class="page-subtitle">Complete los siguientes apartados para registrar su solicitud</p>
 </div>
 
 <div class="stepper-wrapper">
+  <div class="stepper-section-title">
+    Solicitud de aprovisionamiento de recursos computacionales
+  </div>
+
   <mat-stepper linear #stepper>
 
     <ng-template matStepperIcon="edit">
@@ -11,7 +14,7 @@
     </ng-template>
 
     <!-- Paso 1: Contacto -->
-    <mat-step [stepControl]="stepContacto" label=" ">
+    <mat-step [stepControl]="stepContacto" label="Contacto">
       <div class="step-header">
         <span class="step-badge">Paso 1 de 6</span>
         <h2 class="step-title">Datos de contacto y Ente Solicitante.</h2>
@@ -26,7 +29,7 @@
     </mat-step>
 
     <!-- Paso 2: Descripción -->
-    <mat-step [stepControl]="stepDescripcion" label=" ">
+    <mat-step [stepControl]="stepDescripcion" label="Descripción">
       <div class="step-header">
         <span class="step-badge">Paso 2 de 6</span>
         <h2 class="step-title">Descripción General del Requerimiento</h2>
@@ -41,7 +44,7 @@
     </mat-step>
 
     <!-- Paso 3: Especificaciones técnicas -->
-    <mat-step [stepControl]="stepSpecs" label=" ">
+    <mat-step [stepControl]="stepSpecs" label="Especificaciones">
       <div class="step-header">
         <span class="step-badge">Paso 3 de 6</span>
         <h2 class="step-title">Especificaciones técnicas</h2>
@@ -56,7 +59,7 @@
     </mat-step>
 
     <!-- Paso 4: Infraestructura -->
-    <mat-step [stepControl]="stepInfra" label=" ">
+    <mat-step [stepControl]="stepInfra" label="Infraestructura">
       <div class="step-header">
         <span class="step-badge">Paso 4 de 6</span>
         <h2 class="step-title">Infraestructura y red</h2>
@@ -71,7 +74,7 @@
     </mat-step>
 
     <!-- Paso 5: Responsiva -->
-    <mat-step [stepControl]="stepResponsiva" label=" ">
+    <mat-step [stepControl]="stepResponsiva" label="Responsiva">
       <div class="step-header">
         <span class="step-badge">Paso 5 de 6</span>
         <h2 class="step-title">Responsabilidades</h2>
@@ -86,7 +89,7 @@
     </mat-step>
 
     <!-- Paso 6: Confirmación -->
-    <mat-step label=" ">
+    <mat-step label="Confirmación">
       <div class="step-header">
         <span class="step-badge">Paso 6 de 6</span>
         <h2 class="step-title">Revisar y enviar</h2>

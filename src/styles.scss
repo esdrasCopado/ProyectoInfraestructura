@@ -118,16 +118,7 @@ h5 {
   --mdc-filled-button-hover-container-color: var(--primary-dark);
 }
 
-/* Stepper: paso activo */
-.mat-step-icon-selected {
-  background-color: var(--state-focus) !important;
-}
-
-/* Stepper: paso completado */
-.mat-step-icon-state-done,
-.mat-step-icon-state-edit {
-  background-color: var(--state-valid) !important;
-}
+/* Stepper: estilos globales gestionados por carta-stepper.component.scss */
 
 /* ── FOCUS — label azul ── */
 .mat-mdc-form-field.mat-focused:not(.mat-form-field-invalid) {
