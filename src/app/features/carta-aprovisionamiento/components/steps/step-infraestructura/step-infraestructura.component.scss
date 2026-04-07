@@ -3,7 +3,7 @@
 }
 
 .form-section {
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
 }
 
 .section-title {
@@ -40,8 +40,8 @@
 
 .section-divider {
   border: none;
-  border-top: 1px solid #e5e7eb;
-  margin: 1.5rem 0;
+  border-top: 1px solid #d1d5db;
+  margin: 2rem 0;
 }
 
 .fields-grid {
@@ -61,12 +61,118 @@
   mat-form-field { width: 100%; }
 }
 
+.field-error {
+  font-size: 12px;
+  color: #d32f2f;
+  min-height: 16px;
+  line-height: 1.4;
+  padding: 2px 0 4px;
+}
+
+.req-mark {
+  color: #d32f2f;
+  font-weight: 700;
+}
+
+/* ── Selector de tipo VPN ── */
+.vpn-tipo-toggle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  margin: 16px 0 24px;
+  width: 100%;
+
+  ::ng-deep .mat-button-toggle {
+    flex: 1;
+    min-width: 0;
+    font-size: 13px;
+  }
+
+  ::ng-deep .mat-button-toggle-checked {
+    background-color: var(--primary);
+    color: #fff;
+  }
+}
+
+.vpn-fields {
+  margin-top: 8px;
+}
+
+/* ── Vigencia ── */
+.vigencia-label {
+  font-size: 14px;
+  color: #374151;
+  font-weight: 500;
+  margin: 0 0 10px;
+}
+
+.vigencia-group {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+/* ── Lista y tarjetas VPN ── */
+.vpn-section-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.vpn-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.vpn-card {
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 16px;
+  background: #fafafa;
+}
+
+.vpn-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.vpn-card-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.vpn-remove-btn {
+  color: #d32f2f;
+  width: 32px;
+  height: 32px;
+
+  ::ng-deep .mat-icon { font-size: 18px; }
+}
+
+.add-vpn-btn {
+  margin-top: 4px;
+  color: var(--primary);
+  border-color: var(--primary);
+  font-size: 13px;
+
+  mat-icon { font-size: 18px; margin-right: 4px; }
+}
+
 @media (max-width: 600px) {
   .fields-grid {
     grid-template-columns: 1fr;
+    .field-full { grid-column: 1; }
+  }
 
-    .field-full {
-      grid-column: 1;
-    }
+  .vpn-tipo-toggle {
+    flex-direction: column;
+    ::ng-deep .mat-button-toggle { flex: none; }
   }
 }

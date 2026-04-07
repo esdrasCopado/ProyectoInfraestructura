@@ -1,0 +1,84 @@
+<section class="login">
+  <div class="background">
+    <div class="mask"></div>
+  </div>
+  <div class="pattern">
+  </div>
+  <div class="info">
+    <div class="logos">
+      <img src="/SonoraLogo.png" />
+      <img src="/logo-transformacion-digital-white.svg" />
+      <img src="/SEGOBLogo.png" />
+    </div>
+
+    <!--h3>SEGOBSONORA</h3-->
+
+    <h3>
+      Coordinación Ejecutiva de Logística, Giras,
+    </h3>
+
+    <h3>
+       Eventos y Relaciones Públicas.
+    </h3>
+    <!--Agenda de Gobierno-->
+
+
+    <h6>
+      El <strong>Portal de Eventos para Secretaría de Gobierno</strong> es una
+      herramienta digital diseñada para optimizar la gestión de eventos y el
+      seguimiento de compromisos en el entorno gubernamental. Esta herramienta
+      permite a las secretarias de gobierno organizar, planificar y gestionar de
+      manera eficiente reuniones, citas y documentos importantes.
+    </h6>
+
+    <p>
+      Centro de Gobierno, Edificio Hermosillo. Calle Comonfort y Paseo del Río
+      Sonora, 3er Piso Ala Sur. C.P. 83280, Hermosillo, Sonora, México.
+    </p>
+  </div>
+
+  <div class="form">
+    <div class="container">
+      <img src="/IconInicio.svg" />
+
+      <h3>INICIO DE SESIÓN</h3>
+
+      <form (ngSubmit)="iniciarSesion()">
+        <div class="contenedor">
+          <div class="input-group">
+            <input
+              [(ngModel)]="correo"
+              type="text"
+              id="correo"
+              name="correo"
+              required
+            />
+            <label for="correo">Correo electrónico</label>
+          </div>
+
+          <div class="input-group">
+            <input
+              [(ngModel)]="password"
+              type="password"
+              id="contrasena"
+              name="password"
+              required
+            />
+            <label for="contrasena">Contraseña</label>
+          </div>
+
+          <div class="link">
+            <a (click)="recuperarContrasena()"
+              ><u>¿Olvidaste tu contraseña?</u></a
+            >
+          </div>
+        </div>
+
+        <button type="submit">Iniciar sesión</button>
+      </form>
+    </div>
+  </div>
+
+  <app-modal></app-modal>
+  <app-recuperar-modal></app-recuperar-modal>
+</section>

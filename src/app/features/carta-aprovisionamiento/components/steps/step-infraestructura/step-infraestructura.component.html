@@ -1,6 +1,6 @@
 <div class="step-container">
 
-  <!-- Sección: Configuración de red -->
+  <!-- Sección 1: Configuración de red -->
   <section class="form-section" aria-labelledby="red-heading">
     <h3 id="red-heading" class="section-title">
       <span class="section-number">1</span>
@@ -14,8 +14,7 @@
         <mat-form-field appearance="outline">
           <mat-label>Subdominio solicitado</mat-label>
           <input matInput formControlName="subdominioSolicitado"
-                 autocomplete="off"
-                 placeholder="Ej. app.dominio.gob.mx">
+                 autocomplete="off" placeholder="Ej. app.dominio.gob.mx">
         </mat-form-field>
       </div>
 
@@ -23,8 +22,7 @@
         <mat-form-field appearance="outline">
           <mat-label>Puerto</mat-label>
           <input matInput formControlName="puerto"
-                 autocomplete="off"
-                 placeholder="Ej. 8080">
+                 autocomplete="off" placeholder="Ej. 8080">
         </mat-form-field>
       </div>
 
@@ -37,75 +35,259 @@
 
   <hr class="section-divider" aria-hidden="true">
 
-  <!-- Sección: Responsable de VPN -->
+  <!-- Sección 2: Acceso VPN -->
   <section class="form-section" aria-labelledby="vpn-heading">
-    <h3 id="vpn-heading" class="section-title">
-      <span class="section-number">2</span>
-      Responsable de VPN
-    </h3>
-    <p class="section-desc">Datos de contacto del responsable del acceso VPN</p>
-
-    <div [formGroup]="form" class="fields-grid">
-
-      <div class="field-wrap">
-        <mat-form-field appearance="outline">
-          <mat-label>Responsable</mat-label>
-          <input matInput formControlName="vpnResponsable"
-                 autocomplete="name"
-                 [attr.aria-describedby]="isInvalid('vpnResponsable') ? 'vpn-responsable-error' : null"
-                 [attr.aria-invalid]="isInvalid('vpnResponsable')">
-        </mat-form-field>
-        @if (hasError('vpnResponsable', 'required')) {
-          <span id="vpn-responsable-error" class="field-error" role="alert">⚠ Ingresa el nombre del responsable VPN</span>
-        }
+    <div class="vpn-section-header">
+      <div>
+        <h3 id="vpn-heading" class="section-title">
+          <span class="section-number">2</span>
+          Acceso VPN
+        </h3>
+        <p class="section-desc">Configura los accesos VPN requeridos para el servidor</p>
       </div>
+    </div>
 
-      <div class="field-wrap">
-        <mat-form-field appearance="outline">
-          <mat-label>Cargo</mat-label>
-          <input matInput formControlName="vpnCargo"
-                 autocomplete="organization-title"
-                 [attr.aria-describedby]="isInvalid('vpnCargo') ? 'vpn-cargo-error' : null"
-                 [attr.aria-invalid]="isInvalid('vpnCargo')">
-        </mat-form-field>
-        @if (hasError('vpnCargo', 'required')) {
-          <span id="vpn-cargo-error" class="field-error" role="alert">⚠ Ingresa el cargo del responsable VPN</span>
-        }
-      </div>
+    <!-- Lista de entradas VPN -->
+    <div [formGroup]="form">
+    <div formArrayName="vpns" class="vpn-list">
 
-      <div class="field-wrap">
-        <mat-form-field appearance="outline">
-          <mat-label>Teléfono de contacto</mat-label>
-          <input matInput formControlName="vpnTelefono"
-                 appPhoneMask
-                 type="tel"
-                 placeholder="(333) 333-3333"
-                 autocomplete="tel"
-                 [attr.aria-describedby]="isInvalid('vpnTelefono') ? 'vpn-telefono-error' : null"
-                 [attr.aria-invalid]="isInvalid('vpnTelefono')">
-        </mat-form-field>
-        <span id="vpn-telefono-error" class="field-error" role="alert">
-          @if (hasError('vpnTelefono', 'required')) { ⚠ Ingresa el teléfono de contacto }
-          @else if (hasError('vpnTelefono', 'pattern')) { ⚠ Formato requerido: (XXX) XXX-XXXX }
-        </span>
-      </div>
+      @for (vpn of vpnsArray.controls; track $index; let i = $index) {
+        <div class="vpn-card" [formGroupName]="i">
 
-      <div class="field-wrap">
-        <mat-form-field appearance="outline">
-          <mat-label>Correo electrónico</mat-label>
-          <input matInput formControlName="vpnCorreo"
-                 type="email"
-                 autocomplete="email"
-                 [attr.aria-describedby]="isInvalid('vpnCorreo') ? 'vpn-correo-error' : null"
-                 [attr.aria-invalid]="isInvalid('vpnCorreo')">
-        </mat-form-field>
-        <span id="vpn-correo-error" class="field-error" role="alert">
-          @if (hasError('vpnCorreo', 'required')) { ⚠ Ingresa el correo electrónico }
-          @else if (hasError('vpnCorreo', 'email')) { ⚠ El correo no tiene un formato válido }
-        </span>
-      </div>
+          <!-- Cabecera de la tarjeta -->
+          <div class="vpn-card-header">
+            <span class="vpn-card-title">VPN #{{ i + 1 }}</span>
+            @if (vpnsArray.length > 1) {
+              <button mat-icon-button type="button" (click)="eliminarVpn(i)"
+                      class="vpn-remove-btn" aria-label="Eliminar VPN">
+                <mat-icon>delete_outline</mat-icon>
+              </button>
+            }
+          </div>
+
+          <!-- Selector de tipo -->
+          <mat-button-toggle-group formControlName="tipoVpn" class="vpn-tipo-toggle"
+                                   aria-label="Tipo de acceso VPN">
+            <mat-button-toggle value="dependencia">Usuario VPN de la Dependencia</mat-button-toggle>
+            <mat-button-toggle value="actualizacion">Actualización de Usuario VPN</mat-button-toggle>
+            <mat-button-toggle value="proveedor">Usuario VPN para Proveedor</mat-button-toggle>
+          </mat-button-toggle-group>
+
+          <!-- ── Dependencia ── -->
+          @if (tipoVpnAt(i) === 'dependencia') {
+            <div class="fields-grid vpn-fields">
+
+              <div class="field-wrap">
+                <mat-form-field appearance="outline">
+                  <mat-label>Responsable</mat-label>
+                  <input matInput formControlName="vpnResponsable" autocomplete="name"
+                         [attr.aria-describedby]="isInvalidAt(i,'vpnResponsable') ? 'vpn-resp-err-'+i : null">
+                </mat-form-field>
+                @if (hasErrorAt(i,'vpnResponsable','required')) {
+                  <span [id]="'vpn-resp-err-'+i" class="field-error" role="alert">⚠ Ingresa el nombre del responsable</span>
+                }
+              </div>
+
+              <div class="field-wrap">
+                <mat-form-field appearance="outline">
+                  <mat-label>Cargo</mat-label>
+                  <input matInput formControlName="vpnCargo" autocomplete="organization-title"
+                         [attr.aria-describedby]="isInvalidAt(i,'vpnCargo') ? 'vpn-cargo-err-'+i : null">
+                </mat-form-field>
+                @if (hasErrorAt(i,'vpnCargo','required')) {
+                  <span [id]="'vpn-cargo-err-'+i" class="field-error" role="alert">⚠ Ingresa el cargo</span>
+                }
+              </div>
+
+              <div class="field-wrap">
+                <mat-form-field appearance="outline">
+                  <mat-label>Teléfono de contacto</mat-label>
+                  <input matInput formControlName="vpnTelefono" appPhoneMask type="tel"
+                         placeholder="(333) 333-3333" autocomplete="tel"
+                         [attr.aria-describedby]="isInvalidAt(i,'vpnTelefono') ? 'vpn-tel-err-'+i : null">
+                </mat-form-field>
+                <span [id]="'vpn-tel-err-'+i" class="field-error" role="alert">
+                  @if (hasErrorAt(i,'vpnTelefono','required')) { ⚠ Ingresa el teléfono }
+                  @else if (hasErrorAt(i,'vpnTelefono','pattern')) { ⚠ Formato: (XXX) XXX-XXXX }
+                </span>
+              </div>
+
+              <div class="field-wrap">
+                <mat-form-field appearance="outline">
+                  <mat-label>Correo electrónico</mat-label>
+                  <input matInput formControlName="vpnCorreo" type="email" autocomplete="email"
+                         [attr.aria-describedby]="isInvalidAt(i,'vpnCorreo') ? 'vpn-correo-err-'+i : null">
+                </mat-form-field>
+                <span [id]="'vpn-correo-err-'+i" class="field-error" role="alert">
+                  @if (hasErrorAt(i,'vpnCorreo','required')) { ⚠ Ingresa el correo electrónico }
+                  @else if (hasErrorAt(i,'vpnCorreo','email')) { ⚠ El correo no tiene un formato válido }
+                </span>
+              </div>
+
+            </div>
+          }
+
+          <!-- ── Actualización ── -->
+          @if (tipoVpnAt(i) === 'actualizacion') {
+            <div class="fields-grid vpn-fields">
+
+              <div class="field-wrap">
+                <mat-form-field appearance="outline">
+                  <mat-label>Perfil anterior</mat-label>
+                  <input matInput formControlName="vpnPerfilAnterior" autocomplete="off"
+                         placeholder="Ej. DGIT01 - Juan López">
+                  <mat-hint>Formato: DGIT## - nombre del usuario actual</mat-hint>
+                </mat-form-field>
+              </div>
+
+              <div class="field-wrap">
+                <mat-form-field appearance="outline">
+                  <mat-label>Servidores solicitados</mat-label>
+                  <input matInput formControlName="vpnServidores" autocomplete="off"
+                         placeholder="Ej. SRV-APP-01, SRV-BD-02">
+                </mat-form-field>
+              </div>
+
+              <div class="field-wrap">
+                <mat-form-field appearance="outline">
+                  <mat-label>ID VPN <span class="req-mark">*</span></mat-label>
+                  <input matInput formControlName="vpnId" autocomplete="off"
+                         [attr.aria-describedby]="isInvalidAt(i,'vpnId') ? 'vpn-id-err-'+i : null">
+                </mat-form-field>
+                @if (hasErrorAt(i,'vpnId','required')) {
+                  <span [id]="'vpn-id-err-'+i" class="field-error" role="alert">⚠ Ingresa el ID VPN</span>
+                }
+              </div>
+
+              <div class="field-wrap">
+                <mat-form-field appearance="outline">
+                  <mat-label>IP VPN <span class="req-mark">*</span></mat-label>
+                  <input matInput formControlName="vpnIp" autocomplete="off"
+                         placeholder="Ej. 10.0.0.25"
+                         [attr.aria-describedby]="isInvalidAt(i,'vpnIp') ? 'vpn-ip-err-'+i : null">
+                </mat-form-field>
+                @if (hasErrorAt(i,'vpnIp','required')) {
+                  <span [id]="'vpn-ip-err-'+i" class="field-error" role="alert">⚠ Ingresa la IP VPN</span>
+                }
+              </div>
+
+            </div>
+          }
+
+          <!-- ── Proveedor ── -->
+          @if (tipoVpnAt(i) === 'proveedor') {
+            <div class="fields-grid vpn-fields">
+
+              <div class="field-wrap">
+                <mat-form-field appearance="outline">
+                  <mat-label>Responsable</mat-label>
+                  <input matInput formControlName="vpnResponsable" autocomplete="name"
+                         [attr.aria-describedby]="isInvalidAt(i,'vpnResponsable') ? 'prov-resp-err-'+i : null">
+                </mat-form-field>
+                @if (hasErrorAt(i,'vpnResponsable','required')) {
+                  <span [id]="'prov-resp-err-'+i" class="field-error" role="alert">⚠ Ingresa el nombre del responsable</span>
+                }
+              </div>
+
+              <div class="field-wrap">
+                <mat-form-field appearance="outline">
+                  <mat-label>Cargo</mat-label>
+                  <input matInput formControlName="vpnCargo" autocomplete="organization-title"
+                         [attr.aria-describedby]="isInvalidAt(i,'vpnCargo') ? 'prov-cargo-err-'+i : null">
+                </mat-form-field>
+                @if (hasErrorAt(i,'vpnCargo','required')) {
+                  <span [id]="'prov-cargo-err-'+i" class="field-error" role="alert">⚠ Ingresa el cargo</span>
+                }
+              </div>
+
+              <div class="field-wrap">
+                <mat-form-field appearance="outline">
+                  <mat-label>Teléfono de contacto</mat-label>
+                  <input matInput formControlName="vpnTelefono" appPhoneMask type="tel"
+                         placeholder="(333) 333-3333" autocomplete="tel"
+                         [attr.aria-describedby]="isInvalidAt(i,'vpnTelefono') ? 'prov-tel-err-'+i : null">
+                </mat-form-field>
+                <span [id]="'prov-tel-err-'+i" class="field-error" role="alert">
+                  @if (hasErrorAt(i,'vpnTelefono','required')) { ⚠ Ingresa el teléfono }
+                  @else if (hasErrorAt(i,'vpnTelefono','pattern')) { ⚠ Formato: (XXX) XXX-XXXX }
+                </span>
+              </div>
+
+              <div class="field-wrap">
+                <mat-form-field appearance="outline">
+                  <mat-label>Correo electrónico</mat-label>
+                  <input matInput formControlName="vpnCorreo" type="email" autocomplete="email"
+                         [attr.aria-describedby]="isInvalidAt(i,'vpnCorreo') ? 'prov-correo-err-'+i : null">
+                </mat-form-field>
+                <span [id]="'prov-correo-err-'+i" class="field-error" role="alert">
+                  @if (hasErrorAt(i,'vpnCorreo','required')) { ⚠ Ingresa el correo electrónico }
+                  @else if (hasErrorAt(i,'vpnCorreo','email')) { ⚠ El correo no tiene un formato válido }
+                </span>
+              </div>
+
+              <div class="field-wrap">
+                <mat-form-field appearance="outline">
+                  <mat-label>Empresa <span class="req-mark">*</span></mat-label>
+                  <input matInput formControlName="vpnEmpresa" autocomplete="organization"
+                         [attr.aria-describedby]="isInvalidAt(i,'vpnEmpresa') ? 'prov-empresa-err-'+i : null">
+                </mat-form-field>
+                @if (hasErrorAt(i,'vpnEmpresa','required')) {
+                  <span [id]="'prov-empresa-err-'+i" class="field-error" role="alert">⚠ Ingresa el nombre de la empresa</span>
+                }
+              </div>
+
+              <div class="field-wrap">
+                <mat-form-field appearance="outline">
+                  <mat-label>ID VPN <span class="req-mark">*</span></mat-label>
+                  <input matInput formControlName="vpnId" autocomplete="off"
+                         [attr.aria-describedby]="isInvalidAt(i,'vpnId') ? 'prov-id-err-'+i : null">
+                </mat-form-field>
+                @if (hasErrorAt(i,'vpnId','required')) {
+                  <span [id]="'prov-id-err-'+i" class="field-error" role="alert">⚠ Ingresa el ID VPN</span>
+                }
+              </div>
+
+              <div class="field-wrap">
+                <mat-form-field appearance="outline">
+                  <mat-label>IP VPN <span class="req-mark">*</span></mat-label>
+                  <input matInput formControlName="vpnIp" autocomplete="off"
+                         placeholder="Ej. 10.0.0.25"
+                         [attr.aria-describedby]="isInvalidAt(i,'vpnIp') ? 'prov-ip-err-'+i : null">
+                </mat-form-field>
+                @if (hasErrorAt(i,'vpnIp','required')) {
+                  <span [id]="'prov-ip-err-'+i" class="field-error" role="alert">⚠ Ingresa la IP VPN</span>
+                }
+              </div>
+
+              <!-- Vigencia -->
+              <div class="field-wrap field-full">
+                <p class="vigencia-label">Vigencia del acceso <span class="req-mark">*</span></p>
+                <mat-radio-group formControlName="vpnVigencia" class="vigencia-group"
+                                 aria-label="Vigencia del acceso VPN">
+                  <mat-radio-button value="30">30 días</mat-radio-button>
+                  <mat-radio-button value="60">60 días</mat-radio-button>
+                  <mat-radio-button value="90">90 días</mat-radio-button>
+                </mat-radio-group>
+                @if (hasErrorAt(i,'vpnVigencia','required')) {
+                  <span class="field-error" role="alert">⚠ Selecciona la vigencia del acceso</span>
+                }
+              </div>
+
+            </div>
+          }
+
+        </div>
+      }
 
     </div>
+    </div>
+
+    <!-- Botón agregar VPN -->
+    <button mat-stroked-button type="button" (click)="agregarVpn()" class="add-vpn-btn">
+      <mat-icon>add</mat-icon>
+      Agregar otra VPN
+    </button>
+
   </section>
 
 </div>

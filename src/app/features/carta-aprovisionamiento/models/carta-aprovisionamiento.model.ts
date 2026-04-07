@@ -1,51 +1,77 @@
 export interface ContactoArea {
-  sector: string;
+  sector:      string;
   dependencia: string;
   responsable: string;
-  cargo: string;
-  telefono: string;
-  correo: string;
+  cargo:       string;
+  telefono:    string;
+  correo:      string;
+}
+
+export interface AdminServidor extends ContactoArea {
+  proveedor: string;
+}
+
+export interface Descripcion {
+  descripcionServidor:       string;
+  nombreServidor:            string;
+  nombreAplicacion:          string;
+  tipoUso:                   'interno' | 'publicado';
+  fechaArranque:             string;
+  vigencia:                  string;
+  caracteristicasEspeciales: string;
+}
+
+export interface Specs {
+  tipoRequerimiento:    'estandar' | 'especial';
+  modalidad:            'nuevo' | 'renovacion';
+  sistemaOperativo:     'windows' | 'linux' | 'otro';
+  sistemaOperativoOtro: string;
+  vCores:               number;
+  memoriaRam:           number;
+  almacenamiento:       number;
+  motorBD:              string;
+  puertos:              string;
+  integraciones:        string;
+  otrasSpecs:           string;
+  // Campos de renovación (presentes solo cuando modalidad = 'renovacion')
+  ipActual:             string;
+  nombreServidorActual: string;
+  tipoRenovacion:       'clonacion' | 'serverBase' | '';
+}
+
+export interface VpnEntry {
+  tipoVpn:           'dependencia' | 'actualizacion' | 'proveedor';
+  vpnResponsable:    string;
+  vpnCargo:          string;
+  vpnTelefono:       string;
+  vpnCorreo:         string;
+  vpnPerfilAnterior: string;
+  vpnServidores:     string;
+  vpnId:             string;
+  vpnIp:             string;
+  vpnEmpresa:        string;
+  vpnVigencia:       '30' | '60' | '90' | '';
+}
+
+export interface Infraestructura {
+  subdominioSolicitado: string;
+  puerto:               string;
+  requiereSSL:          boolean;
+  vpns:                 VpnEntry[];
+}
+
+export interface Responsiva {
+  firmante:       string;
+  numEmpleado:    string;
+  puestoFirmante: string;
+  aceptaTerminos: boolean;
 }
 
 export interface CartaAprovisionamiento {
-  // Apartado 1
   areaRequirente: ContactoArea;
-  adminServidor: ContactoArea & { proveedor: string };
-
-  // Apartado 2
-  descripcionServidor: string;
-  nombreServidor: string;
-  fechaArranque: string;
-  tipoUso: 'interno' | 'publicado';
-  caracteristicasEspeciales: string;
-  vigencia: string;
-  nombreAplicacion: string;
-
-  // Apartado 3
-  tipoRequerimiento: 'estandar' | 'especifico';
-  modalidad: 'nuevo' | 'clonacion' | 'serverBase';
-  sistemaOperativo: 'windows' | 'linux' | 'otro';
-  sistemaOperativoOtro?: string;
-  vCores: number;
-  memoriaRam: number;
-  almacenamiento: number;
-  motorBD: string;
-  puertos: string;
-  integraciones: string;
-  otrasSpecs: string;
-
-  // Apartado 4
-  subdominioSolicitado: string;
-  puerto: string;
-  requiereSSL: boolean;
-  vpnResponsable: string;
-  vpnCargo: string;
-  vpnTelefono: string;
-  vpnCorreo: string;
-
-  // Apartado 6
-  firmante: string;
-  numEmpleado: string;
-  puestoFirmante: string;
-  aceptaTerminos: boolean;
+  adminServidor:  AdminServidor;
+  descripcion:    Descripcion;
+  specs:          Specs;
+  infraestructura: Infraestructura;
+  responsiva:     Responsiva;
 }
