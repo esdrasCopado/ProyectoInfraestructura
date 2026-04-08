@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
-import { DashboardResponse, Solicitud } from '../models/solicitud.model';
+import { HttpClient } from '@angular/common/http';
+import { Observable, of, forkJoin, map, catchError } from 'rxjs';
+import { DashboardResponse, DashboardMetricas, Solicitud, EtapaSolicitud, EstadoSolicitud } from '../models/solicitud.model';
 import { environment } from '../../../../environments/environment';
 import { DASHBOARD_MOCK } from './dashboard.mock';
 
@@ -13,10 +13,59 @@ export interface DashboardFiltros {
   porPagina?: number;
 }
 
+// ── Interfaces del backend ────────────────────────────────────────────────────
+
+interface ResumenBackend {
+  total:      number;
+  nuevas:     number;
+  pendientes: number;
+  enProceso:  number;
+  terminadas: number;
+}
+
+interface SolicitudBackend {
+  id:            number;
+  titulo:        string;
+  folio:         string;
+  etapaActual:   string;   // nombre de etapa, no número
+  estado:        string;   // "Pendiente" | "En proceso" | "Terminado"
+  fecha_creacion: string;
+  servidores:    { hostname: string; [k: string]: any }[];
+  [k: string]:   any;
+}
+
+// ── Definición canónica de etapas ─────────────────────────────────────────────
+// Los nombres deben coincidir exactamente con los que devuelve el backend en etapaActual
+
+export const ETAPAS_PROCESO: { numero: number; nombre: string }[] = [
+  { numero: 1,  nombre: 'Carta responsiva'    },
+  { numero: 2,  nombre: 'Validación recursos' },
+  { numero: 3,  nombre: 'Creación servidor'   },
+  { numero: 4,  nombre: 'Comunicaciones'      },
+  { numero: 5,  nombre: 'Parches'             },
+  { numero: 6,  nombre: 'XDR y agente'        },
+  { numero: 7,  nombre: 'VPN'                 },
+  { numero: 8,  nombre: 'Subdominio'          },
+  { numero: 9,  nombre: 'Credenciales'        },
+  { numero: 10, nombre: 'WAF'                 },
+  { numero: 11, nombre: 'Evidencias'          },
+  { numero: 12, nombre: 'Val. evidencias'     },
+  { numero: 13, nombre: 'Sol. publicación'    },
+  { numero: 14, nombre: 'Vulnerabilidades'    },
+];
+
+const ESTADO_MAP: Record<string, EstadoSolicitud> = {
+  'Pendiente':  'pendiente',
+  'En proceso': 'en-progreso',
+  'En Proceso': 'en-progreso',
+  'Terminado':  'completada',
+  'Completado': 'completada',
+};
+
 @Injectable({ providedIn: 'root' })
 export class DashboardService {
 
-  private apiUrl = `${environment.apiUrl}/dashboard`;
+  private solicitudUrl = `${environment.apiUrl}/solicitud`;
   private readonly useMock = environment.useMock;
 
   constructor(private http: HttpClient) {}
@@ -26,21 +75,84 @@ export class DashboardService {
       return of(this.filtrarLocal(DASHBOARD_MOCK, filtros));
     }
 
-    let params = new HttpParams();
-    if (filtros.busqueda)  params = params.set('busqueda', filtros.busqueda);
-    if (filtros.estado)    params = params.set('estado', filtros.estado);
-    if (filtros.etapa)     params = params.set('etapa', filtros.etapa.toString());
-    if (filtros.pagina)    params = params.set('pagina', filtros.pagina.toString());
-    if (filtros.porPagina) params = params.set('porPagina', filtros.porPagina.toString());
-    return this.http.get<DashboardResponse>(this.apiUrl, { params });
+    return forkJoin({
+      resumen:     this.http.get<ResumenBackend>(`${this.solicitudUrl}/dashboard/resumen`),
+      solicitudes: this.http.get<SolicitudBackend[]>(`${this.solicitudUrl}/todas`),
+    }).pipe(
+      map(({ resumen, solicitudes }) => {
+        const mapped    = solicitudes.map(s => this.mapearSolicitud(s));
+        const metricas  = this.mapearMetricas(resumen);
+        const filtradas = this.filtrarLocal({ solicitudes: mapped, metricas }, filtros).solicitudes;
+        return { solicitudes: filtradas, metricas };
+      })
+    );
   }
 
   obtenerDetalle(id: string): Observable<Solicitud> {
     if (this.useMock) {
       return of(DASHBOARD_MOCK.solicitudes.find(s => s.id === id)!);
     }
-    return this.http.get<Solicitud>(`${this.apiUrl}/${id}`);
+    return forkJoin({
+      solicitud: this.http.get<SolicitudBackend>(`${this.solicitudUrl}/${id}`),
+      servidores: this.http.get<any[]>(`${environment.apiUrl}/servidor/solicitud/${id}`).pipe(
+        catchError(() => of([] as any[]))
+      ),
+    }).pipe(
+      map(({ solicitud, servidores }) => {
+        const mapped = this.mapearSolicitud(solicitud);
+        // inyectar recursos del servidor en la etapa de Validación recursos (etapa 2)
+        const srvList = servidores as any[];
+        if (srvList.length > 0) {
+          const srv = srvList[0];
+          const etapa2 = mapped.etapas.find(e => e.numero === 2);
+          if (etapa2) {
+            etapa2.vCores        = srv.vCores        ?? srv.vcores        ?? etapa2.vCores;
+            etapa2.memoriaRam    = srv.memoriaRam     ?? srv.memoria_ram   ?? etapa2.memoriaRam;
+            etapa2.almacenamiento= srv.almacenamiento ?? etapa2.almacenamiento;
+          }
+        }
+        return mapped;
+      })
+    );
   }
+
+  // ── Mapeo backend → modelo frontend ─────────────────────────────────────────
+
+  private mapearSolicitud(s: SolicitudBackend): Solicitud {
+    const etapaIdx = ETAPAS_PROCESO.findIndex(e => e.nombre === s.etapaActual);
+    const etapaNum = etapaIdx >= 0 ? etapaIdx + 1 : 1;
+
+    const etapas: EtapaSolicitud[] = ETAPAS_PROCESO.map(e => ({
+      numero: e.numero,
+      nombre: e.nombre,
+      estado: e.numero < etapaNum ? 'completada'
+            : e.numero === etapaNum ? 'en-curso'
+            : 'sin-iniciar',
+    }));
+
+    return {
+      id:                 String(s.id),
+      folio:              s.folio,
+      dependencia:        s.titulo,
+      nombreServidor:     s.servidores?.[0]?.hostname ?? '',
+      estado:             ESTADO_MAP[s.estado] ?? 'pendiente',
+      etapaActual:        etapaNum,
+      etapas,
+      fechaRegistro:      s.fecha_creacion,
+      fechaActualizacion: s.fecha_creacion,
+    };
+  }
+
+  private mapearMetricas(m: ResumenBackend): DashboardMetricas {
+    return {
+      total:      m.total,
+      enProgreso: m.enProceso,
+      pendientes: m.pendientes,
+      completadas: m.terminadas,
+    };
+  }
+
+  // ── Filtrado local (mock y post-fetch) ───────────────────────────────────────
 
   private filtrarLocal(data: DashboardResponse, filtros: DashboardFiltros): DashboardResponse {
     let solicitudes = data.solicitudes;
@@ -58,7 +170,7 @@ export class DashboardService {
       solicitudes = solicitudes.filter(s => s.etapaActual === filtros.etapa);
     }
 
-    const metricas = {
+    const metricas: DashboardMetricas = {
       total:      solicitudes.length,
       enProgreso: solicitudes.filter(s => s.estado === 'en-progreso').length,
       pendientes: solicitudes.filter(s => s.estado === 'pendiente').length,

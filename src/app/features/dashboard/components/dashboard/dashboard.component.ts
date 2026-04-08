@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subject, combineLatest } from 'rxjs';
@@ -11,7 +11,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { DashboardService } from '../../services/dashboard.service';
+import { DashboardService, ETAPAS_PROCESO } from '../../services/dashboard.service';
 import { Solicitud, DashboardMetricas, EstadoEtapa } from '../../models/solicitud.model';
 
 @Component({
@@ -42,28 +42,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
   estadoCtrl   = new FormControl('');
   etapaCtrl    = new FormControl('');
 
-  readonly etapasNombres = [
-    'Registro carta',
-    'Validación recursos',
-    'Creación servidor',
-    'Comunicaciones',
-    'Parches',
-    'XDR y agente',
-    'VPN',
-    'Subdominio',
-    'Credenciales',
-    'WAF',
-    'Evidencias',
-    'Val. evidencias',
-    'Sol. publicación',
-    'Vulnerabilidades'
-  ];
+  readonly etapasNombres = ETAPAS_PROCESO.map(e => e.nombre);
 
   private destroy$ = new Subject<void>();
 
   constructor(
     private dashboardService: DashboardService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -80,10 +66,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.solicitudes = data.solicitudes;
         this.metricas    = data.metricas;
         this.cargando    = false;
+        this.cdr.detectChanges();
       },
-      error: () => {
+      error: (err) => {
+        console.error('[Dashboard] error recibido', err);
         this.error    = true;
         this.cargando = false;
+        this.cdr.detectChanges();
       }
     });
   }

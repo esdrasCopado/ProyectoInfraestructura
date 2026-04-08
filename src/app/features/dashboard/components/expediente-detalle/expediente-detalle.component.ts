@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -40,7 +40,8 @@ export class ExpedienteDetalleComponent implements OnInit {
     private route: ActivatedRoute,
     private dashboardService: DashboardService,
     private authService: AuthService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -56,10 +57,12 @@ export class ExpedienteDetalleComponent implements OnInit {
         this.solicitud = data;
         this.cargando = false;
         this.inicializarPanel();
+        this.cdr.detectChanges();
       },
       error: () => {
         this.error = true;
         this.cargando = false;
+        this.cdr.detectChanges();
       }
     });
   }
