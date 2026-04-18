@@ -16,7 +16,7 @@
           <mat-select formControlName="tipoRequerimiento"
                       [attr.aria-describedby]="isInvalid('tipoRequerimiento') ? 'tipo-req-error' : null">
             <mat-option value="estandar">Estándar</mat-option>
-            <mat-option value="especial">Especial</mat-option>
+            <mat-option value="especifico">Específico</mat-option>
           </mat-select>
         </mat-form-field>
         @if (hasError('tipoRequerimiento', 'required')) {
@@ -136,7 +136,7 @@
     @if (esEstandar) {
       <div class="recursos-estandar-nota" role="note">
         <mat-icon>lock</mat-icon>
-        Recursos predefinidos para requerimiento estándar. Selecciona <strong>Especial</strong> para personalizarlos.
+        Recursos predefinidos para requerimiento estándar. Selecciona <strong>Específico</strong> para personalizarlos.
       </div>
     }
 
@@ -172,22 +172,69 @@
         </span>
       </div>
 
-      <div class="field-wrap">
-        <mat-form-field appearance="outline">
-          <mat-label>Almacenamiento (GB)</mat-label>
-          <input matInput type="number" formControlName="almacenamiento" min="1"
-                 [readonly]="esEstandar"
-                 [attr.aria-describedby]="isInvalid('almacenamiento') ? 'storage-error' : null"
-                 [attr.aria-invalid]="isInvalid('almacenamiento')">
-          @if (esEstandar) { <mat-hint>Valor estándar: 50 GB</mat-hint> }
-        </mat-form-field>
-        <span id="storage-error" class="field-error" role="alert">
-          @if (hasError('almacenamiento', 'required')) { ⚠ Ingresa el almacenamiento requerido }
-          @else if (hasError('almacenamiento', 'min')) { ⚠ El valor mínimo es 1 GB }
-        </span>
-      </div>
-
     </div>
+
+    <!-- Discos duros -->
+    <div class="discos-header">
+      <span class="discos-label">Discos duros</span>
+      @if (!esEstandar) {
+        <button mat-stroked-button type="button" class="btn-agregar-disco"
+                (click)="agregarDisco()"
+                matTooltip="Agregar otro disco duro">
+          <mat-icon>add</mat-icon> Agregar disco
+        </button>
+      }
+    </div>
+
+    <div class="discos-lista">
+      @for (disco of discosDuros.controls; track $index) {
+        <div [formGroup]="$any(disco)" class="disco-card">
+          <div class="disco-card-header">
+            <span class="disco-index">Disco {{ $index + 1 }}</span>
+            @if (!esEstandar && discosDuros.length > 1) {
+              <button mat-icon-button type="button" class="btn-eliminar-disco"
+                      (click)="eliminarDisco($index)"
+                      matTooltip="Eliminar disco">
+                <mat-icon>delete_outline</mat-icon>
+              </button>
+            }
+          </div>
+          <div class="disco-fields">
+            <div class="field-wrap">
+              <mat-form-field appearance="outline">
+                <mat-label>Capacidad (GB)</mat-label>
+                <input matInput type="number" formControlName="capacidad" min="1"
+                       [readonly]="esEstandar">
+                @if (esEstandar && $index === 0) { <mat-hint>Valor estándar: 50 GB</mat-hint> }
+              </mat-form-field>
+              <span class="field-error" role="alert">
+                @if (hasDiscoError($index, 'capacidad', 'required')) { ⚠ Ingresa la capacidad }
+                @else if (hasDiscoError($index, 'capacidad', 'min')) { ⚠ El valor mínimo es 1 GB }
+              </span>
+            </div>
+            <div class="field-wrap">
+              <mat-form-field appearance="outline">
+                <mat-label>Tipo</mat-label>
+                <mat-select formControlName="tipo" [disabled]="esEstandar">
+                  <mat-option value="SSD">SSD</mat-option>
+                  <mat-option value="HDD">HDD</mat-option>
+                  <mat-option value="NVMe">NVMe</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <div class="field-wrap">
+              <mat-form-field appearance="outline">
+                <mat-label>Etiqueta / Uso (opcional)</mat-label>
+                <input matInput formControlName="etiqueta" autocomplete="off"
+                       [readonly]="esEstandar"
+                       placeholder="Ej. Sistema operativo, Datos, Respaldo">
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
   </section>
 
   <hr class="section-divider" aria-hidden="true">
@@ -204,7 +251,7 @@
 
       <div class="field-wrap">
         <mat-form-field appearance="outline">
-          <mat-label>Motor de BD</mat-label>
+          <mat-label>Motor de base de datos</mat-label>
           <input matInput formControlName="motorBD" autocomplete="off"
                  placeholder="Ej. MySQL, PostgreSQL">
         </mat-form-field>

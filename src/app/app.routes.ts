@@ -30,6 +30,20 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'crear-usuario',
+    loadComponent: () =>
+      import('./features/crearUsuario/components/nuevoUsuario.component')
+        .then(m => m.NuevoUsuarioComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'perfil-usuario',
+    loadComponent: () =>
+      import('./features/perfilUsuario/components/perfilUsuario.component')
+        .then(m => m.PerfilUsuarioComponent),
+    canActivate: [authGuard]
+  },
+  {
     path: '',
     redirectTo: 'login',
     pathMatch: 'full'

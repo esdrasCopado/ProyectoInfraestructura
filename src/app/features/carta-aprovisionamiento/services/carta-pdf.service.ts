@@ -1,12 +1,18 @@
 import { Injectable } from '@angular/core';
 import jsPDF from 'jspdf';
 
+interface DiscoDuroPdf {
+  capacidad: number;
+  tipo: string;
+  etiqueta?: string;
+}
+
 interface FormValue {
   areaRequirente: Record<string, string>;
   adminServidor: Record<string, string>;
   descripcion: Record<string, string>;
-  specs: Record<string, string | number | boolean>;
-  infraestructura: Record<string, string | boolean>;
+  specs: Record<string, string | number | boolean | DiscoDuroPdf[]>;
+  infraestructura: Record<string, string | boolean | string[]>;
   responsiva: Record<string, string | boolean>;
 }
 
@@ -149,33 +155,40 @@ export class CartaPdfService {
     ];
   }
 
-  private rowsSpecs(g: Record<string, string | number | boolean>): [string, string][] {
+  private rowsSpecs(g: Record<string, string | number | boolean | DiscoDuroPdf[]>): [string, string][] {
     const so = g['sistemaOperativo'] === 'otro'
       ? String(g['sistemaOperativoOtro'] ?? '')
       : String(g['sistemaOperativo'] ?? '');
+
+    const discos = (g['discosDuros'] as DiscoDuroPdf[] | undefined) ?? [];
+    const discosRows: [string, string][] = discos.map((d, i) => {
+      const etiqueta = d.etiqueta ? ` (${d.etiqueta})` : '';
+      return [`Disco ${i + 1}:`, `${d.capacidad} GB — ${d.tipo}${etiqueta}`];
+    });
+
     return [
       ['Tipo de requerimiento:', String(g['tipoRequerimiento'])],
       ['Modalidad:', String(g['modalidad'])],
       ['Sistema operativo:', so],
       ['vCores:', String(g['vCores'])],
       ['Memoria RAM (GB):', String(g['memoriaRam'])],
-      ['Almacenamiento (GB):', String(g['almacenamiento'])],
-      ['Motor de BD:', String(g['motorBD'] || '—')],
+      ...discosRows,
+      ['Motor de base de datos:', String(g['motorBD'] || '—')],
       ['Puertos:', String(g['puertos'] || '—')],
       ['Integraciones:', String(g['integraciones'] || '—')],
       ['Otras especificaciones:', String(g['otrasSpecs'] || '—')],
     ];
   }
 
-  private rowsInfra(g: Record<string, string | boolean>): [string, string][] {
+  private rowsInfra(g: Record<string, string | boolean | string[]>): [string, string][] {
+    const subdominios = (g['subdominios'] as string[] | undefined) ?? [];
+    const subdRows: [string, string][] = subdominios
+      .filter(s => s.trim())
+      .map((s, i) => [`Subdominio ${i + 1}:`, s] as [string, string]);
     return [
-      ['Subdominio solicitado:', String(g['subdominioSolicitado'] || '—')],
+      ...subdRows,
       ['Puerto:', String(g['puerto'] || '—')],
       ['Requiere SSL:', g['requiereSSL'] ? 'Sí' : 'No'],
-      ['Responsable VPN:', String(g['vpnResponsable'])],
-      ['Cargo VPN:', String(g['vpnCargo'])],
-      ['Teléfono VPN:', String(g['vpnTelefono'])],
-      ['Correo VPN:', String(g['vpnCorreo'])],
     ];
   }
 

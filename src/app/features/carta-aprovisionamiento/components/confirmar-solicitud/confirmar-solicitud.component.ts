@@ -176,8 +176,11 @@ export class ConfirmarSolicitudComponent {
       ['Sistema operativo:', so],
       ['vCores:', String(g.vCores)],
       ['Memoria RAM (GB):', String(g.memoriaRam)],
-      ['Almacenamiento (GB):', String(g.almacenamiento)],
-      ['Motor de BD:', g.motorBD],
+      ...((g.discosDuros ?? []) as any[]).map((d: any, i: number) => {
+        const etiqueta = d.etiqueta ? ` (${d.etiqueta})` : '';
+        return [`Disco ${i + 1}:`, `${d.capacidad} GB — ${d.tipo}${etiqueta}`] as [string, string];
+      }),
+      ['Motor de base de datos:', g.motorBD],
       ['Puertos:', g.puertos],
       ['Integraciones:', g.integraciones],
       ['Otras especificaciones:', g.otrasSpecs],
@@ -186,14 +189,13 @@ export class ConfirmarSolicitudComponent {
 
   get rowsInfra(): [string, string][] {
     const g = this.v.infraestructura ?? {};
+    const subdominios: [string, string][] = ((g.subdominios ?? []) as string[])
+      .filter((s: string) => s.trim())
+      .map((s: string, i: number) => [`Subdominio ${i + 1}:`, s] as [string, string]);
     return [
-      ['Subdominio solicitado:', g.subdominioSolicitado],
+      ...subdominios,
       ['Puerto:', g.puerto],
       ['Requiere SSL:', g.requiereSSL ? 'Sí' : 'No'],
-      ['Responsable VPN:', g.vpnResponsable],
-      ['Cargo VPN:', g.vpnCargo],
-      ['Teléfono VPN:', g.vpnTelefono],
-      ['Correo VPN:', g.vpnCorreo],
     ];
   }
 

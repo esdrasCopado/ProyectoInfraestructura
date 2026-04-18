@@ -1,6 +1,6 @@
 import { Component, OnInit, AfterViewInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
-
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { faker } from '@faker-js/faker';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -94,7 +94,7 @@ export class CartaStepperComponent implements OnInit, AfterViewInit {
         sistemaOperativoOtro: [''],
         vCores:               [2, [Validators.required, Validators.min(1)]],
         memoriaRam:           [4, [Validators.required, Validators.min(1)]],
-        almacenamiento:       [50, [Validators.required, Validators.min(1)]],
+        discosDuros:          this.fb.array([this.crearDiscoDuroGroup()]),
         motorBD:              [''],
         puertos:              [''],
         integraciones:        [''],
@@ -107,9 +107,9 @@ export class CartaStepperComponent implements OnInit, AfterViewInit {
 
       // Apartado 4 — Infraestructura
       infraestructura: this.fb.group({
-        subdominioSolicitado: [''],
-        puerto:               [''],
-        requiereSSL:          [false],
+        subdominios: this.fb.array([]),
+        puerto:      [''],
+        requiereSSL: [false],
         // Cada entrada VPN es un FormGroup dentro del array
         vpns: this.fb.array([this.crearVpnGroup()]),
       }),
@@ -131,21 +131,113 @@ export class CartaStepperComponent implements OnInit, AfterViewInit {
   get stepInfra()          { return this.form.get('infraestructura') as FormGroup; }
   get stepResponsiva()     { return this.form.get('responsiva') as FormGroup; }
   get vpnsArray()          { return this.stepInfra.get('vpns') as FormArray; }
+  get discosDurosArray()   { return this.stepSpecs.get('discosDuros') as FormArray; }
+  get subdominiosArray()   { return this.stepInfra.get('subdominios') as FormArray; }
+
+  crearDiscoDuroGroup(): FormGroup {
+    return this.fb.group({
+      capacidad: [50, [Validators.required, Validators.min(1)]],
+      tipo:      ['SSD', Validators.required],
+      etiqueta:  [''],
+    });
+  }
 
   crearVpnGroup(): FormGroup {
     return this.fb.group({
       tipoVpn:           ['dependencia', Validators.required],
-      vpnResponsable:    [''],
+      vpnResponsable:    ['', Validators.required],
       vpnCargo:          [''],
       vpnTelefono:       ['', Validators.pattern(/^\(\d{3}\) \d{3}-\d{4}$/)],
       vpnCorreo:         ['', Validators.email],
       vpnPerfilAnterior: [''],
       vpnServidores:     [''],
-      vpnId:             [''],
+      vpnFolio:          [''],
       vpnIp:             [''],
       vpnEmpresa:        [''],
       vpnVigencia:       [''],
     });
+  }
+
+  llenarDemo(): void {
+    const phone = () =>
+      `(${faker.string.numeric(3)}) ${faker.string.numeric(3)}-${faker.string.numeric(4)}`;
+
+    const sectores     = ['Educación', 'Salud', 'Hacienda', 'Seguridad Pública', 'Desarrollo Social'];
+    const dependencias = ['DGIT', 'SEP', 'IMSS', 'SAT', 'SEFIN', 'SSP'];
+    const fechaFutura  = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)
+      .toISOString().split('T')[0];
+
+    this.form.patchValue({
+      areaRequirente: {
+        sector:      faker.helpers.arrayElement(sectores),
+        dependencia: faker.helpers.arrayElement(dependencias),
+        responsable: faker.person.fullName(),
+        cargo:       faker.person.jobTitle(),
+        telefono:    phone(),
+        correo:      faker.internet.email(),
+      },
+      adminServidor: {
+        proveedor:   faker.company.name(),
+        dependencia: faker.helpers.arrayElement(dependencias),
+        responsable: faker.person.fullName(),
+        cargo:       faker.person.jobTitle(),
+        telefono:    phone(),
+        correo:      faker.internet.email(),
+      },
+      descripcion: {
+        descripcionServidor:       faker.lorem.sentence(),
+        nombreServidor:            `SRV-${faker.string.alphanumeric(6).toUpperCase()}`,
+        nombreAplicacion:          faker.commerce.productName(),
+        tipoUso:                   faker.helpers.arrayElement(['interno', 'publicado']),
+        fechaArranque:             fechaFutura,
+        vigencia:                  faker.helpers.arrayElement(['6 meses', '1 año', '2 años']),
+        caracteristicasEspeciales: faker.lorem.sentence(),
+      },
+      specs: {
+        tipoRequerimiento: 'especifico',
+        arquitectura:      faker.helpers.arrayElement(['virtual', 'fisica', 'hibrida', 'nube']),
+        modalidad:         'nuevo',
+        sistemaOperativo:  faker.helpers.arrayElement(['windows', 'linux']),
+        vCores:            faker.helpers.arrayElement([2, 4, 8, 16]),
+        memoriaRam:        faker.helpers.arrayElement([4, 8, 16, 32]),
+        motorBD:           faker.helpers.arrayElement(['MySQL', 'PostgreSQL', 'SQL Server']),
+        puertos:           '80, 443, 8080',
+        integraciones:     faker.lorem.sentence(),
+        otrasSpecs:        faker.lorem.sentence(),
+      },
+      infraestructura: {
+        puerto:      faker.helpers.arrayElement(['80', '443', '8080']),
+        requiereSSL: true,
+      },
+      responsiva: {
+        firmante:       faker.person.fullName(),
+        numEmpleado:    faker.string.numeric(6),
+        puestoFirmante: faker.person.jobTitle(),
+        aceptaTerminos: true,
+      },
+    });
+
+    // Chips de subdominios: limpiar y añadir demo
+    while (this.subdominiosArray.length > 0) this.subdominiosArray.removeAt(0);
+    this.subdominiosArray.push(this.fb.control(`app${faker.string.numeric(2)}.sonora.gob.mx`));
+
+    // Primer disco duro
+    (this.discosDurosArray.at(0) as FormGroup).patchValue({
+      capacidad: faker.helpers.arrayElement([50, 100, 200, 500]),
+      tipo:      faker.helpers.arrayElement(['SSD', 'HDD', 'NVMe']),
+      etiqueta:  'Sistema operativo',
+    });
+
+    // Primera entrada VPN
+    (this.vpnsArray.at(0) as FormGroup).patchValue({
+      tipoVpn:        'dependencia',
+      vpnResponsable: faker.person.fullName(),
+      vpnCargo:       faker.person.jobTitle(),
+      vpnTelefono:    phone(),
+      vpnCorreo:      faker.internet.email(),
+    });
+
+    this.cdr.markForCheck();
   }
 
   // Convierte cadenas vacías a null para los campos opcionales del backend
@@ -158,101 +250,90 @@ export class CartaStepperComponent implements OnInit, AfterViewInit {
     this.enviando   = true;
     this.errorEnvio = null;
 
-    const v = this.form.value;
+    const v     = this.form.value;
+    const today = new Date().toISOString().split('T')[0];
 
-    // El formulario usa códigos cortos; el backend espera las etiquetas completas
     const VPN_TIPO: Record<string, string> = {
       dependencia:   'Usuario VPN de dependencia',
       proveedor:     'Usuario VPN para proveedor',
       actualizacion: 'Actualizacion de usuario VPN',
     };
 
-    // Si la modalidad es "renovación" en el form, el backend recibe el tipo
-    // de renovación seleccionado (clonacion / serverBase)
-    const modalidadPayload = v.specs.modalidad === 'renovacion'
-      ? (v.specs.tipoRenovacion || 'clonacion')
-      : v.specs.modalidad;
-
-    const payload = {
-      areaRequirente: {
-        sector:      v.areaRequirente.sector,
-        dependencia: v.areaRequirente.dependencia,
-        responsable: v.areaRequirente.responsable,
-        cargo:       v.areaRequirente.cargo,
-        telefono:    v.areaRequirente.telefono,
-        correo:      v.areaRequirente.correo,
-      },
-      adminServidor: {
-        proveedor:   v.adminServidor.proveedor,
-        dependencia: v.adminServidor.dependencia,
-        responsable: v.adminServidor.responsable,
-        cargo:       v.adminServidor.cargo,
-        telefono:    v.adminServidor.telefono,
-        correo:      v.adminServidor.correo,
-      },
-      descripcion: {
-        descripcionServidor:       v.descripcion.descripcionServidor,
-        nombreServidor:            v.descripcion.nombreServidor,
-        nombreAplicacion:          v.descripcion.nombreAplicacion,
-        tipoUso:                   v.descripcion.tipoUso,
-        fechaArranque:             v.descripcion.fechaArranque,
-        vigencia:                  v.descripcion.vigencia,
-        caracteristicasEspeciales: this.orNull(v.descripcion.caracteristicasEspeciales),
-      },
-      specs: {
-        tipoRequerimiento:    v.specs.tipoRequerimiento,
-        arquitectura:         v.specs.arquitectura,
-        modalidad:            modalidadPayload,
-        sistemaOperativo:     v.specs.sistemaOperativo,
-        sistemaOperativoOtro: this.orNull(v.specs.sistemaOperativoOtro),
-        vCores:               v.specs.vCores,
-        memoriaRam:           v.specs.memoriaRam,
-        almacenamiento:       v.specs.almacenamiento,
-        motorBD:              this.orNull(v.specs.motorBD),
-        puertos:              this.orNull(v.specs.puertos),
-        integraciones:        this.orNull(v.specs.integraciones),
-        otrasSpecs:           this.orNull(v.specs.otrasSpecs),
-        ipActual:             this.orNull(v.specs.ipActual),
-        nombreServidorActual: this.orNull(v.specs.nombreServidorActual),
-        tipoRenovacion:       this.orNull(v.specs.tipoRenovacion),
-      },
-      infraestructura: {
-        subdominioSolicitado: this.orNull(v.infraestructura.subdominioSolicitado),
-        puerto:               this.orNull(v.infraestructura.puerto),
-        requiereSSL:          v.infraestructura.requiereSSL,
-        vpns: (v.infraestructura.vpns as any[]).map(vpn => ({
-          tipoVpn:           VPN_TIPO[vpn.tipoVpn] ?? vpn.tipoVpn,
-          vpnResponsable:    this.orNull(vpn.vpnResponsable),
-          vpnCargo:          this.orNull(vpn.vpnCargo),
-          vpnTelefono:       this.orNull(vpn.vpnTelefono),
-          vpnCorreo:         this.orNull(vpn.vpnCorreo),
-          vpnPerfilAnterior: this.orNull(vpn.vpnPerfilAnterior),
-          vpnServidores:     this.orNull(vpn.vpnServidores),
-          vpnId:             this.orNull(vpn.vpnId),
-          vpnIp:             this.orNull(vpn.vpnIp),
-          vpnEmpresa:        this.orNull(vpn.vpnEmpresa),
-          vpnVigencia:       this.orNull(vpn.vpnVigencia),
-        })),
-      },
-      responsiva: {
-        firmante:       v.responsiva.firmante,
-        numEmpleado:    v.responsiva.numEmpleado,
-        puestoFirmante: v.responsiva.puestoFirmante,
-        aceptaTerminos: v.responsiva.aceptaTerminos,
-      },
+    const vpnFechaExp = (vigencia: string | null): string | null => {
+      if (!vigencia) return null;
+      const d = new Date();
+      d.setDate(d.getDate() + parseInt(vigencia, 10));
+      return d.toISOString().split('T')[0];
     };
 
-    this.cartaService.registrarCarta(payload).subscribe({
-      next: (cartaRes) => {
+    const sistemaOperativo = v.specs.sistemaOperativo === 'otro'
+      ? (v.specs.sistemaOperativoOtro || 'otro')
+      : v.specs.sistemaOperativo;
+
+    const almacenamiento = (v.specs.discosDuros as any[])
+      .reduce((sum: number, d: any) => sum + (d.capacidad ?? 0), 0);
+
+    const servicios = [v.specs.motorBD, v.specs.integraciones]
+      .filter((s: string) => s?.trim())
+      .join(', ') || null;
+
+    const payload = {
+      idUsuario:                  this.cartaService.obtenerIdUsuario(),
+      titulo:                     v.descripcion.nombreAplicacion,
+      arquitectura:               v.specs.arquitectura,
+      descripcion:                v.descripcion.descripcionServidor,
+      servicios,
+      responsableActual:          v.areaRequirente.responsable,
+      usuarioUltimaActualizacion: v.areaRequirente.responsable,
+      fechaActualizacion:         today,
+      fechaRequerida:             v.descripcion.fechaArranque,
+      comentariosSeguimiento:     this.orNull(v.descripcion.caracteristicasEspeciales),
+      servidores: [{
+        idSolicitud:                null,
+        hostname:                   v.descripcion.nombreServidor,
+        tipoUso:                    v.descripcion.tipoUso,
+        funcion:                    v.descripcion.nombreAplicacion,
+        sistemaOperativo,
+        requiereLlaveLicencia:      false,
+        nucleos:                    v.specs.vCores,
+        ram:                        v.specs.memoriaRam,
+        almacenamiento,
+        descripcion:                v.descripcion.descripcionServidor,
+        plantillaRecursos:          v.specs.tipoRequerimiento,
+        responsableInfraestructura: v.adminServidor.responsable,
+        solicitudPublicacion:       v.descripcion.tipoUso === 'publicado',
+        vpNs: (v.infraestructura.vpns as any[]).map((vpn: any) => ({
+          idUsuarioResponsable: null,
+          tipo:                 VPN_TIPO[vpn.tipoVpn] ?? vpn.tipoVpn,
+          fechaAsignacion:      today,
+          fechaExpiracion:      vpnFechaExp(vpn.vpnVigencia),
+          estado:               'Pendiente',
+        })),
+        subdominios: (v.infraestructura.subdominios as string[])
+          .filter((s: string) => s.trim())
+          .map((url: string) => ({
+            idUsuario:       null,
+            nombreUrl:       url.trim(),
+            fechaAsignacion: today,
+            fechaExpiracion: null,
+            estado:          'Solicitado',
+          })),
+        waFs:              [],
+        evidenciasPruebas: [],
+      }],
+    };
+
+    this.cartaService.crearSolicitudCompleta(payload).subscribe({
+      next: (res: { folio: string }) => {
         this.enviando = false;
-        this.folio    = cartaRes.folio;
+        this.folio    = res.folio;
         this.cdr.markForCheck();
       },
-      error: (err) => {
+      error: (err: any) => {
         this.enviando   = false;
         this.errorEnvio = err?.error?.message ?? 'Ocurrió un error al enviar la solicitud. Intenta de nuevo.';
         this.cdr.markForCheck();
-      }
+      },
     });
   }
 }

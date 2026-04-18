@@ -17,6 +17,7 @@ export interface Solicitud {
   folio: string;
   dependencia: string;
   nombreServidor: string;
+  servidorId?: string;
   estado: EstadoSolicitud;
   etapaActual: number;
   etapas: EtapaSolicitud[];

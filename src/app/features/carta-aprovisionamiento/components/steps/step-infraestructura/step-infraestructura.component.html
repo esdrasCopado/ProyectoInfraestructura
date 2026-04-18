@@ -8,27 +8,42 @@
     </h3>
     <p class="section-desc">Dominio, puerto y opciones de seguridad del servidor</p>
 
-    <div [formGroup]="form" class="fields-grid">
+    <div [formGroup]="form" class="fields-grid fields-grid--stack">
 
-      <div class="field-wrap">
-        <mat-form-field appearance="outline">
-          <mat-label>Subdominio solicitado</mat-label>
-          <input matInput formControlName="subdominioSolicitado"
-                 autocomplete="off" placeholder="Ej. app.dominio.gob.mx">
+      <!-- Subdominios (chips) -->
+      <div class="field-full">
+        <mat-form-field appearance="outline" class="subdominios-chip-field">
+          <mat-label>Subdominios solicitados</mat-label>
+          <mat-chip-grid #chipGrid aria-label="Subdominios solicitados">
+            @for (ctrl of subdominiosArray.controls; track $index; let i = $index) {
+              <mat-chip-row (removed)="eliminarSubdominio(i)">
+                {{ ctrl.value }}
+                <button matChipRemove aria-label="Eliminar subdominio">
+                  <mat-icon>cancel</mat-icon>
+                </button>
+              </mat-chip-row>
+            }
+            <input placeholder="ej. app.dominio.gob.mx → Enter para agregar"
+                   [matChipInputFor]="chipGrid"
+                   [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                   (matChipInputTokenEnd)="agregarChip($event)" />
+          </mat-chip-grid>
+          <mat-hint>Presiona Enter para agregar cada subdominio</mat-hint>
         </mat-form-field>
       </div>
 
-      <div class="field-wrap">
-        <mat-form-field appearance="outline">
+      <!-- Puerto + SSL en la misma fila -->
+      <div class="field-full puerto-ssl-row">
+        <mat-form-field appearance="outline" class="puerto-field">
           <mat-label>Puerto</mat-label>
           <input matInput formControlName="puerto"
                  autocomplete="off" placeholder="Ej. 8080">
         </mat-form-field>
-      </div>
 
-      <mat-checkbox formControlName="requiereSSL" class="field-full">
-        Requiere SSL
-      </mat-checkbox>
+        <mat-checkbox formControlName="requiereSSL">
+          Usar conexión segura (SSL)
+        </mat-checkbox>
+      </div>
 
     </div>
   </section>
@@ -133,6 +148,17 @@
 
               <div class="field-wrap">
                 <mat-form-field appearance="outline">
+                  <mat-label>Responsable</mat-label>
+                  <input matInput formControlName="vpnResponsable" autocomplete="name"
+                         [attr.aria-describedby]="isInvalidAt(i,'vpnResponsable') ? 'act-resp-err-'+i : null">
+                </mat-form-field>
+                @if (hasErrorAt(i,'vpnResponsable','required')) {
+                  <span [id]="'act-resp-err-'+i" class="field-error" role="alert">⚠ Ingresa el nombre del responsable</span>
+                }
+              </div>
+
+              <div class="field-wrap">
+                <mat-form-field appearance="outline">
                   <mat-label>Perfil anterior</mat-label>
                   <input matInput formControlName="vpnPerfilAnterior" autocomplete="off"
                          placeholder="Ej. DGIT01 - Juan López">
@@ -144,18 +170,31 @@
                 <mat-form-field appearance="outline">
                   <mat-label>Servidores solicitados</mat-label>
                   <input matInput formControlName="vpnServidores" autocomplete="off"
-                         placeholder="Ej. SRV-APP-01, SRV-BD-02">
+                         placeholder="Ej. SRV-APP-01, SRV-BaseDatos-02">
                 </mat-form-field>
               </div>
 
               <div class="field-wrap">
                 <mat-form-field appearance="outline">
-                  <mat-label>ID VPN <span class="req-mark">*</span></mat-label>
-                  <input matInput formControlName="vpnId" autocomplete="off"
-                         [attr.aria-describedby]="isInvalidAt(i,'vpnId') ? 'vpn-id-err-'+i : null">
+                  <mat-label>Folio VPN <span class="req-mark">*</span></mat-label>
+                  <input matInput
+                         [formControl]="folioSearchCtrls[i]"
+                         [matAutocomplete]="autoFolioActualizacion"
+                         autocomplete="off"
+                         placeholder="Buscar por folio…"
+                         [attr.aria-describedby]="isInvalidAt(i,'vpnFolio') ? 'vpn-folio-err-'+i : null">
+                  <mat-autocomplete #autoFolioActualizacion="matAutocomplete"
+                                    (optionSelected)="seleccionarFolio(i, $event.option.value)">
+                    @for (vpn of foliosFiltrados[i]; track vpn.folio) {
+                      <mat-option [value]="vpn">
+                        <span class="vpn-option-folio">{{ vpn.folio }}</span>
+                        <span class="vpn-option-tipo"> — {{ vpn.tipo }}</span>
+                      </mat-option>
+                    }
+                  </mat-autocomplete>
                 </mat-form-field>
-                @if (hasErrorAt(i,'vpnId','required')) {
-                  <span [id]="'vpn-id-err-'+i" class="field-error" role="alert">⚠ Ingresa el ID VPN</span>
+                @if (hasErrorAt(i,'vpnFolio','required')) {
+                  <span [id]="'vpn-folio-err-'+i" class="field-error" role="alert">⚠ Ingresa el folio VPN</span>
                 }
               </div>
 
@@ -238,12 +277,25 @@
 
               <div class="field-wrap">
                 <mat-form-field appearance="outline">
-                  <mat-label>ID VPN <span class="req-mark">*</span></mat-label>
-                  <input matInput formControlName="vpnId" autocomplete="off"
-                         [attr.aria-describedby]="isInvalidAt(i,'vpnId') ? 'prov-id-err-'+i : null">
+                  <mat-label>Folio VPN <span class="req-mark">*</span></mat-label>
+                  <input matInput
+                         [formControl]="folioSearchCtrls[i]"
+                         [matAutocomplete]="autoFolioProveedor"
+                         autocomplete="off"
+                         placeholder="Buscar por folio…"
+                         [attr.aria-describedby]="isInvalidAt(i,'vpnFolio') ? 'prov-folio-err-'+i : null">
+                  <mat-autocomplete #autoFolioProveedor="matAutocomplete"
+                                    (optionSelected)="seleccionarFolio(i, $event.option.value)">
+                    @for (vpn of foliosFiltrados[i]; track vpn.folio) {
+                      <mat-option [value]="vpn">
+                        <span class="vpn-option-folio">{{ vpn.folio }}</span>
+                        <span class="vpn-option-tipo"> — {{ vpn.tipo }}</span>
+                      </mat-option>
+                    }
+                  </mat-autocomplete>
                 </mat-form-field>
-                @if (hasErrorAt(i,'vpnId','required')) {
-                  <span [id]="'prov-id-err-'+i" class="field-error" role="alert">⚠ Ingresa el ID VPN</span>
+                @if (hasErrorAt(i,'vpnFolio','required')) {
+                  <span [id]="'prov-folio-err-'+i" class="field-error" role="alert">⚠ Ingresa el folio VPN</span>
                 }
               </div>
 

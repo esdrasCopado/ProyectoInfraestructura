@@ -1,11 +1,108 @@
 <header class="header">
   <div class="header-content">
-    <div class="header-logo">
-      <img src="SonoraLogo.png" alt="Logo" class="logo-image" />
+
+    <!-- Logo → Dashboard -->
+    <div class="header-logo" routerLink="/dashboard" role="link" aria-label="Ir al dashboard">
+      <img src="SonoraLogo.png" alt="Logo Sonora" class="logo-image" />
     </div>
-    <nav class="header-nav">
-      <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
-      <a routerLink="/carta-aprovisionamiento" routerLinkActive="active">Nueva solicitud</a>
-    </nav>
+
+    <!-- Página actual -->
+    <div class="header-nav">
+      @if (paginaActual) {
+        <span class="nav-separator">
+          <mat-icon>chevron_right</mat-icon>
+        </span>
+        <span class="nav-pagina">{{ paginaActual }}</span>
+      }
+    </div>
+
+    <!-- Spacer -->
+    <div class="header-spacer"></div>
+
+    <!-- Acciones de la barra -->
+    <div class="header-actions">
+
+      <!-- Nueva solicitud — solo Dependencia/Cliente -->
+      @if (esDependencia || esAdminGeneral) {
+        <button class="action-btn action-btn--labeled" routerLink="/carta-aprovisionamiento"
+                aria-label="Nueva solicitud">
+          <mat-icon>add_circle_outline</mat-icon>
+          <span>Nueva solicitud</span>
+        </button>
+      }
+
+      <!-- Notificaciones -->
+      <button class="action-btn" routerLink="/notificaciones"
+              matTooltip="Notificaciones" aria-label="Notificaciones">
+        <mat-icon
+          [matBadge]="totalNotificaciones > 0 ? totalNotificaciones : null"
+          matBadgeColor="warn"
+          matBadgeSize="small">
+          notifications
+        </mat-icon>
+      </button>
+
+      <!-- Mensajes -->
+      <button class="action-btn" routerLink="/mensajes"
+              matTooltip="Mensajes" aria-label="Mensajes">
+        <mat-icon
+          [matBadge]="totalMensajes > 0 ? totalMensajes : null"
+          matBadgeColor="accent"
+          matBadgeSize="small">
+          mail_outline
+        </mat-icon>
+      </button>
+
+    </div>
+
+    <!-- Menú de usuario -->
+    <button class="user-trigger" [matMenuTriggerFor]="menuUsuario" aria-label="Menú de usuario">
+      <span class="user-avatar">{{ iniciales }}</span>
+      <span class="user-info">
+        <span class="user-name">{{ nombreUsuario }}</span>
+        <span class="user-role">{{ etiquetaRol }}</span>
+      </span>
+      <mat-icon class="chevron">expand_more</mat-icon>
+    </button>
+
+    <mat-menu #menuUsuario="matMenu" class="header-user-menu">
+
+      <button mat-menu-item routerLink="/perfil-usuario">
+        <mat-icon>manage_accounts</mat-icon>
+        <span>Mi perfil</span>
+      </button>
+
+      <button mat-menu-item routerLink="/historial">
+        <mat-icon>history</mat-icon>
+        <span>Historial de actividad</span>
+      </button>
+
+      <button mat-menu-item routerLink="/ayuda">
+        <mat-icon>help_outline</mat-icon>
+        <span>Ayuda / Manual de usuario</span>
+      </button>
+
+      <button mat-menu-item routerLink="/acerca">
+        <mat-icon>info_outline</mat-icon>
+        <span>Acerca del sistema</span>
+      </button>
+
+      @if (esAdminGeneral) {
+        <mat-divider></mat-divider>
+        <button mat-menu-item routerLink="/crear-usuario">
+          <mat-icon>person_add</mat-icon>
+          <span>Crear usuario</span>
+        </button>
+      }
+
+      <mat-divider></mat-divider>
+
+      <button mat-menu-item class="menu-item-danger" (click)="cerrarSesion()">
+        <mat-icon>logout</mat-icon>
+        <span>Cerrar sesión</span>
+      </button>
+
+    </mat-menu>
+
   </div>
 </header>

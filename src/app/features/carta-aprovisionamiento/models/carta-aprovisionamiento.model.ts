@@ -21,14 +21,20 @@ export interface Descripcion {
   caracteristicasEspeciales: string;
 }
 
+export interface DiscoDuro {
+  capacidad: number;
+  tipo:      'SSD' | 'HDD' | 'NVMe';
+  etiqueta:  string;
+}
+
 export interface Specs {
-  tipoRequerimiento:    'estandar' | 'especial';
+  tipoRequerimiento:    'estandar' | 'especifico';
   modalidad:            'nuevo' | 'renovacion';
   sistemaOperativo:     'windows' | 'linux' | 'otro';
   sistemaOperativoOtro: string;
   vCores:               number;
   memoriaRam:           number;
-  almacenamiento:       number;
+  discosDuros:          DiscoDuro[];
   motorBD:              string;
   puertos:              string;
   integraciones:        string;
@@ -47,17 +53,17 @@ export interface VpnEntry {
   vpnCorreo:         string;
   vpnPerfilAnterior: string;
   vpnServidores:     string;
-  vpnId:             string;
+  vpnFolio:          string;
   vpnIp:             string;
   vpnEmpresa:        string;
   vpnVigencia:       '30' | '60' | '90' | '';
 }
 
 export interface Infraestructura {
-  subdominioSolicitado: string;
-  puerto:               string;
-  requiereSSL:          boolean;
-  vpns:                 VpnEntry[];
+  subdominios: string[];
+  puerto:      string;
+  requiereSSL: boolean;
+  vpns:        VpnEntry[];
 }
 
 export interface Responsiva {

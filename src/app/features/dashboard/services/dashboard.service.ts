@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, forkJoin, map, catchError } from 'rxjs';
 import { DashboardResponse, DashboardMetricas, Solicitud, EtapaSolicitud, EstadoSolicitud } from '../models/solicitud.model';
+import { AuthService } from './auth.service';
 import { environment } from '../../../../environments/environment';
 import { DASHBOARD_MOCK } from './dashboard.mock';
 
@@ -68,7 +69,10 @@ export class DashboardService {
   private solicitudUrl = `${environment.apiUrl}/solicitud`;
   private readonly useMock = environment.useMock;
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService,
+  ) {}
 
   obtenerDashboard(filtros: DashboardFiltros = {}): Observable<DashboardResponse> {
     if (this.useMock) {
@@ -77,7 +81,9 @@ export class DashboardService {
 
     return forkJoin({
       resumen:     this.http.get<ResumenBackend>(`${this.solicitudUrl}/dashboard/resumen`),
-      solicitudes: this.http.get<SolicitudBackend[]>(`${this.solicitudUrl}/todas`),
+      solicitudes: this.http.get<SolicitudBackend[]>(
+        `${this.solicitudUrl}/usuario/${this.authService.obtenerUsuario()?.id ?? ''}`
+      ),
     }).pipe(
       map(({ resumen, solicitudes }) => {
         const mapped    = solicitudes.map(s => this.mapearSolicitud(s));
@@ -86,6 +92,10 @@ export class DashboardService {
         return { solicitudes: filtradas, metricas };
       })
     );
+  }
+
+  actualizarServidor(servidorId: string, payload: Record<string, any>): Observable<any> {
+    return this.http.put(`${environment.apiUrl}/servidor/${servidorId}`, payload);
   }
 
   obtenerDetalle(id: string): Observable<Solicitud> {
@@ -104,11 +114,12 @@ export class DashboardService {
         const srvList = servidores as any[];
         if (srvList.length > 0) {
           const srv = srvList[0];
+          mapped.servidorId = String(srv.id);
           const etapa2 = mapped.etapas.find(e => e.numero === 2);
           if (etapa2) {
-            etapa2.vCores        = srv.vCores        ?? srv.vcores        ?? etapa2.vCores;
-            etapa2.memoriaRam    = srv.memoriaRam     ?? srv.memoria_ram   ?? etapa2.memoriaRam;
-            etapa2.almacenamiento= srv.almacenamiento ?? etapa2.almacenamiento;
+            etapa2.vCores         = srv.nucleos         ?? etapa2.vCores;
+            etapa2.memoriaRam     = srv.ram              ?? etapa2.memoriaRam;
+            etapa2.almacenamiento = srv.almacenamiento   ?? etapa2.almacenamiento;
           }
         }
         return mapped;

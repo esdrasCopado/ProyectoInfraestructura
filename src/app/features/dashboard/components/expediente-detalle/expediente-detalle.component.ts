@@ -107,6 +107,8 @@ export class ExpedienteDetalleComponent implements OnInit {
     const rol = this.rolUsuario;
     if (!etapa || !rol) return false;
 
+    if (rol === 'admin-general') return true;
+
     const permisos: Record<number, RolUsuario[]> = {
       1:  ['dependencia', 'admin-cd'],
       2:  ['admin-cd'],
@@ -142,7 +144,77 @@ export class ExpedienteDetalleComponent implements OnInit {
 
   onGuardar(): void {
     if (this.panelForm.invalid || !this.solicitud) return;
+
+    const servidorId = this.solicitud.servidorId;
+    if (!servidorId) {
+      console.error('[Expediente] No se encontró el ID del servidor');
+      return;
+    }
+
     this.guardando = true;
-    console.log('Guardando etapa', this.solicitud.etapaActual, this.panelForm.value);
+    this.cdr.detectChanges();
+
+    const payload = this.construirPayload();
+
+    this.dashboardService.actualizarServidor(servidorId, payload).subscribe({
+      next: () => {
+        this.guardando = false;
+        this.cargarExpediente(this.solicitud!.id);
+      },
+      error: (err) => {
+        console.error('[Expediente] Error al guardar', err);
+        this.guardando = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  private construirPayload(): Record<string, any> {
+    const v    = this.panelForm.value;
+    const now  = new Date().toISOString();
+    const user = this.authService.obtenerUsuario()?.nombre ?? '';
+
+    switch (this.solicitud!.etapaActual) {
+
+      case 2: // Validación recursos
+        return {
+          nucleos:                    v.vCores,
+          ram:                        v.memoriaRam,
+          almacenamiento:             v.almacenamiento,
+          ip:                         v.ip,
+          usuarioUltimaActualizacion: user,
+          fechaUltimaActualizacion:   now,
+        };
+
+      case 7: // VPN
+        return {
+          vpNs: [{
+            tipoVpn:             v.tipoVpn,
+            vpnVigencia:         v.vigencia,
+            idUsuarioResponsable: 0,
+            estado:              'activa',
+            fechaAsignacion:     now,
+          }],
+          usuarioUltimaActualizacion: user,
+          fechaUltimaActualizacion:   now,
+        };
+
+      case 8: // Subdominio
+        return {
+          subdominios: [{
+            nombreUrl:       v.subdominioSolicitado,
+            estado:          'pendiente',
+            fechaAsignacion: now,
+          }],
+          usuarioUltimaActualizacion: user,
+          fechaUltimaActualizacion:   now,
+        };
+
+      default:
+        return {
+          usuarioUltimaActualizacion: user,
+          fechaUltimaActualizacion:   now,
+        };
+    }
   }
 }

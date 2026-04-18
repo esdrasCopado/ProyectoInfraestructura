@@ -50,6 +50,10 @@
   grid-template-columns: 1fr 1fr;
   column-gap: 16px;
   align-items: start;
+
+  &--stack {
+    grid-template-columns: 1fr;
+  }
 }
 
 .field-wrap {
@@ -73,6 +77,43 @@
 .req-mark {
   color: #d32f2f;
   font-weight: 700;
+}
+
+/* ── Puerto + SSL ── */
+.puerto-ssl-row {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.puerto-field {
+  width: 140px;
+  flex-shrink: 0;
+}
+
+/* ── Subdominios (chips) ── */
+.subdominios-chip-field {
+  width: 100%;
+  display: block;
+
+  ::ng-deep .mat-mdc-form-field-infix {
+    width: 100%;
+  }
+
+  ::ng-deep .mat-mdc-chip {
+    background-color: #eff6ff;
+    color: var(--primary);
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  ::ng-deep .mat-mdc-chip-remove {
+    color: var(--primary);
+    opacity: 0.7;
+
+    &:hover { opacity: 1; }
+  }
 }
 
 /* ── Selector de tipo VPN ── */
