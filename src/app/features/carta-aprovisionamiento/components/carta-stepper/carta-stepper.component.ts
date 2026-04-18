@@ -250,8 +250,9 @@ export class CartaStepperComponent implements OnInit, AfterViewInit {
     this.enviando   = true;
     this.errorEnvio = null;
 
-    const v     = this.form.value;
-    const today = new Date().toISOString().split('T')[0];
+    const v          = this.form.value;
+    const today      = new Date().toISOString().split('T')[0];
+    const idUsuario  = this.cartaService.obtenerIdUsuario();
 
     const VPN_TIPO: Record<string, string> = {
       dependencia:   'Usuario VPN de dependencia',
@@ -270,15 +271,18 @@ export class CartaStepperComponent implements OnInit, AfterViewInit {
       ? (v.specs.sistemaOperativoOtro || 'otro')
       : v.specs.sistemaOperativo;
 
-    const almacenamiento = (v.specs.discosDuros as any[])
-      .reduce((sum: number, d: any) => sum + (d.capacidad ?? 0), 0);
+    const discosDuros = (v.specs.discosDuros as any[]).map((d: any) => ({
+      capacidad: d.capacidad ?? 0,
+      tipo:      d.tipo,
+      etiqueta:  d.etiqueta || null,
+    }));
 
     const servicios = [v.specs.motorBD, v.specs.integraciones]
       .filter((s: string) => s?.trim())
       .join(', ') || null;
 
     const payload = {
-      idUsuario:                  this.cartaService.obtenerIdUsuario(),
+      idUsuario,
       titulo:                     v.descripcion.nombreAplicacion,
       arquitectura:               v.specs.arquitectura,
       descripcion:                v.descripcion.descripcionServidor,
@@ -297,13 +301,13 @@ export class CartaStepperComponent implements OnInit, AfterViewInit {
         requiereLlaveLicencia:      false,
         nucleos:                    v.specs.vCores,
         ram:                        v.specs.memoriaRam,
-        almacenamiento,
+        discosDuros,
         descripcion:                v.descripcion.descripcionServidor,
         plantillaRecursos:          v.specs.tipoRequerimiento,
         responsableInfraestructura: v.adminServidor.responsable,
         solicitudPublicacion:       v.descripcion.tipoUso === 'publicado',
         vpNs: (v.infraestructura.vpns as any[]).map((vpn: any) => ({
-          idUsuarioResponsable: null,
+          idUsuarioResponsable: idUsuario,
           tipo:                 VPN_TIPO[vpn.tipoVpn] ?? vpn.tipoVpn,
           fechaAsignacion:      today,
           fechaExpiracion:      vpnFechaExp(vpn.vpnVigencia),
@@ -323,6 +327,7 @@ export class CartaStepperComponent implements OnInit, AfterViewInit {
       }],
     };
 
+    console.log('[onSubmit] payload enviado:', JSON.stringify(payload, null, 2));
     this.cartaService.crearSolicitudCompleta(payload).subscribe({
       next: (res: { folio: string }) => {
         this.enviando = false;

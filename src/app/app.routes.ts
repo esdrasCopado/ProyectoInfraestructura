@@ -44,6 +44,24 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'reportes',
+    loadComponent: () =>
+      import('./features/reportes/reportes-outlet.component')
+        .then(m => m.ReportesOutletComponent),
+    canActivate: [authGuard],
+    children: [
+      { path: 'solicitudes-dependencia', loadComponent: () => import('./features/reportes/components/reporte-11/reporte-11.component').then(m => m.Reporte11Component) },
+      { path: 'recursos-totalizados',    loadComponent: () => import('./features/reportes/components/reporte-12/reporte-12.component').then(m => m.Reporte12Component) },
+      { path: 'por-ip',                  loadComponent: () => import('./features/reportes/components/reporte-13/reporte-13.component').then(m => m.Reporte13Component) },
+      { path: 'vpn',                     loadComponent: () => import('./features/reportes/components/reporte-21/reporte-21.component').then(m => m.Reporte21Component) },
+      { path: 'subdominios',             loadComponent: () => import('./features/reportes/components/reporte-22/reporte-22.component').then(m => m.Reporte22Component) },
+      { path: 'vulnerabilidades',        loadComponent: () => import('./features/reportes/components/reporte-31/reporte-31.component').then(m => m.Reporte31Component) },
+      { path: 'comunicaciones-ip',       loadComponent: () => import('./features/reportes/components/reporte-32/reporte-32.component').then(m => m.Reporte32Component) },
+      { path: 'estatus-solicitudes',     loadComponent: () => import('./features/reportes/components/reporte-41/reporte-41.component').then(m => m.Reporte41Component) },
+      { path: 'recursos-general',        loadComponent: () => import('./features/reportes/components/reporte-42/reporte-42.component').then(m => m.Reporte42Component) },
+    ]
+  },
+  {
     path: '',
     redirectTo: 'login',
     pathMatch: 'full'

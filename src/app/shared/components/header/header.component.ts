@@ -39,6 +39,7 @@ export class HeaderComponent implements OnInit {
   iniciales        = '';
   esAdminGeneral = false;
   esDependencia  = false;
+  esAdmin        = false;
   paginaActual   = '';
 
   // Contadores — se conectarán al servicio correspondiente cuando exista
@@ -55,6 +56,7 @@ export class HeaderComponent implements OnInit {
     '/historial':               'Historial de actividad',
     '/ayuda':                   'Ayuda',
     '/acerca':                  'Acerca del sistema',
+    '/reportes':                'Reportes',
   };
 
   constructor(
@@ -70,6 +72,7 @@ export class HeaderComponent implements OnInit {
       this.iniciales      = this.calcularIniciales(this.nombreUsuario);
       this.esAdminGeneral = usuario.rol === 'admin-general';
       this.esDependencia  = usuario.rol === 'dependencia';
+      this.esAdmin        = usuario.rol !== 'dependencia';
     }
 
     this.paginaActual = this.resolverPagina(this.router.url);

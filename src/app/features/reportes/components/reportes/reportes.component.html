@@ -1,0 +1,498 @@
+<div class="reportes-page">
+
+  <div class="page-header">
+    <mat-icon>assessment</mat-icon>
+    <h1>Reportes</h1>
+  </div>
+
+  <!-- Filtro global de fechas -->
+  <div class="filtros-bar">
+    <mat-form-field appearance="outline" class="filtro-fecha">
+      <mat-label>Desde</mat-label>
+      <input matInput type="date" [(ngModel)]="fechaDesde">
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="filtro-fecha">
+      <mat-label>Hasta</mat-label>
+      <input matInput type="date" [(ngModel)]="fechaHasta">
+    </mat-form-field>
+    <button mat-raised-button color="primary" (click)="cargar()">
+      <mat-icon>filter_list</mat-icon>
+      Aplicar filtros
+    </button>
+  </div>
+
+  <!-- ── 1. Admin Centro de Datos ────────────────────────────────────────── -->
+  @if (esAdminCD) {
+    <h2 class="seccion-titulo">1. Reportes — Administrador de Centro de Datos</h2>
+    <mat-tab-group animationDuration="200ms">
+
+      <!-- 1.1 Solicitudes por dependencia -->
+      <mat-tab label="1.1 Solicitudes por dependencia">
+        <div class="table-wrap">
+          <table class="reporte-table">
+            <thead>
+              <tr>
+                <th>Folio de solicitud</th>
+                <th>Sector / Dependencia / Proveedor</th>
+                <th>Responsable</th>
+                <th>Contacto</th>
+                <th>Estatus de procesamiento</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (r of datos11; track r.folio) {
+                <tr>
+                  <td>{{ r.folio }}</td>
+                  <td>{{ r.sectorDependencia }}</td>
+                  <td>{{ r.responsable }}</td>
+                  <td>{{ r.contacto }}</td>
+                  <td><span class="estatus-badge" [class]="badgeClass(r.estatus)">{{ r.estatus }}</span></td>
+                </tr>
+              } @empty {
+                <tr><td colspan="5" class="empty">Sin datos para el rango seleccionado</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </mat-tab>
+
+      <!-- 1.2 Recursos solicitados totalizados -->
+      <mat-tab label="1.2 Recursos solicitados">
+        <div class="table-wrap">
+          <table class="reporte-table">
+            <thead>
+              <tr>
+                <th>Folio de solicitud</th>
+                <th>Sector / Dependencia / Proveedor</th>
+                <th>Responsable</th>
+                <th>Contacto</th>
+                <th>Estatus</th>
+                <th>IP del servidor</th>
+                <th>Administrador del servidor</th>
+                <th>Descripción del proyecto</th>
+                <th>Sistema Operativo</th>
+                <th>vCPU</th>
+                <th>RAM (GB)</th>
+                <th>Almacenamiento (GB)</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (r of datos12; track r.folio) {
+                <tr>
+                  <td>{{ r.folio }}</td>
+                  <td>{{ r.sectorDependencia }}</td>
+                  <td>{{ r.responsable }}</td>
+                  <td>{{ r.contacto }}</td>
+                  <td><span class="estatus-badge" [class]="badgeClass(r.estatus)">{{ r.estatus }}</span></td>
+                  <td>{{ r.ipServidor }}</td>
+                  <td>{{ r.adminServidor }}</td>
+                  <td>{{ r.descripcionProyecto }}</td>
+                  <td>{{ r.sistemaOperativo }}</td>
+                  <td class="num">{{ r.vcpu }}</td>
+                  <td class="num">{{ r.ram }}</td>
+                  <td class="num">{{ r.almacenamiento }}</td>
+                </tr>
+              } @empty {
+                <tr><td colspan="12" class="empty">Sin datos para el rango seleccionado</td></tr>
+              }
+            </tbody>
+            <tfoot>
+              <tr class="fila-suma">
+                <td colspan="9" class="suma-label">Totales:</td>
+                <td class="num">{{ sumaVcpu12 }}</td>
+                <td class="num">{{ sumaRam12 }}</td>
+                <td class="num">{{ sumaAlm12 }}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </mat-tab>
+
+      <!-- 1.3 Reporte por IP -->
+      <mat-tab label="1.3 Reporte por IP">
+        <div class="ip-search">
+          <mat-form-field appearance="outline">
+            <mat-label>IP del servidor</mat-label>
+            <mat-icon matPrefix>search</mat-icon>
+            <input matInput [(ngModel)]="ipFiltro13" placeholder="Ej. 10.0.0.1"
+                   (keyup.enter)="buscarIP13()">
+          </mat-form-field>
+          <button mat-raised-button color="primary" (click)="buscarIP13()">
+            <mat-icon>search</mat-icon> Buscar
+          </button>
+        </div>
+        <div class="table-wrap">
+          <table class="reporte-table">
+            <thead>
+              <tr>
+                <th>Folio de solicitud</th>
+                <th>Sector / Dependencia / Proveedor</th>
+                <th>Responsable</th>
+                <th>Contacto Responsable</th>
+                <th>Estatus</th>
+                <th>IP del servidor</th>
+                <th>Administrador del servidor</th>
+                <th>Descripción del proyecto</th>
+                <th>Sistema Operativo</th>
+                <th>vCPU</th>
+                <th>RAM (GB)</th>
+                <th>Almacenamiento (GB)</th>
+                <th>Subdominio aprobado</th>
+                <th>VPN/s</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (r of datos13; track r.folio) {
+                <tr>
+                  <td>{{ r.folio }}</td>
+                  <td>{{ r.sectorDependencia }}</td>
+                  <td>{{ r.responsable }}</td>
+                  <td>{{ r.contacto }}</td>
+                  <td><span class="estatus-badge" [class]="badgeClass(r.estatus)">{{ r.estatus }}</span></td>
+                  <td>{{ r.ipServidor }}</td>
+                  <td>{{ r.adminServidor }}</td>
+                  <td>{{ r.descripcionProyecto }}</td>
+                  <td>{{ r.sistemaOperativo }}</td>
+                  <td class="num">{{ r.vcpu }}</td>
+                  <td class="num">{{ r.ram }}</td>
+                  <td class="num">{{ r.almacenamiento }}</td>
+                  <td>{{ r.subdominioAprobado }}</td>
+                  <td>{{ r.vpns }}</td>
+                </tr>
+              } @empty {
+                <tr><td colspan="14" class="empty">Ingrese una IP y presione Buscar</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </mat-tab>
+
+    </mat-tab-group>
+  }
+
+  <!-- ── 2. Admin Infraestructura ────────────────────────────────────────── -->
+  @if (esAdminInfra) {
+    <h2 class="seccion-titulo">2. Reportes — Administrador de Infraestructura</h2>
+    <mat-tab-group animationDuration="200ms">
+
+      <!-- 2.1 VPN -->
+      <mat-tab label="2.1 Reporte de VPN">
+        <div class="table-wrap">
+          <table class="reporte-table">
+            <thead>
+              <tr>
+                <th>Folio de solicitud</th>
+                <th>Sector / Dependencia / Proveedor</th>
+                <th>Responsable del servidor</th>
+                <th>Contacto Responsable</th>
+                <th>Estatus</th>
+                <th>IP del servidor</th>
+                <th>Identificador de VPN</th>
+                <th>Usuario asignado</th>
+                <th>Fecha de creación</th>
+                <th>Fecha de vencimiento</th>
+                <th>Vigencia</th>
+                <th>Tipo VPN</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (r of datos21; track r.identificadorVpn) {
+                <tr>
+                  <td>{{ r.folio }}</td>
+                  <td>{{ r.sectorDependencia }}</td>
+                  <td>{{ r.responsableServidor }}</td>
+                  <td>{{ r.contacto }}</td>
+                  <td><span class="estatus-badge" [class]="badgeClass(r.estatus)">{{ r.estatus }}</span></td>
+                  <td>{{ r.ipServidor }}</td>
+                  <td>{{ r.identificadorVpn }}</td>
+                  <td>{{ r.usuarioAsignado }}</td>
+                  <td>{{ r.fechaCreacion }}</td>
+                  <td>{{ r.fechaVencimiento }}</td>
+                  <td>{{ r.vigencia }}</td>
+                  <td>{{ r.tipoVpn }}</td>
+                </tr>
+              } @empty {
+                <tr><td colspan="12" class="empty">Sin datos para el rango seleccionado</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </mat-tab>
+
+      <!-- 2.2 Subdominios -->
+      <mat-tab label="2.2 Reporte de Subdominios">
+        <div class="table-wrap">
+          <table class="reporte-table">
+            <thead>
+              <tr>
+                <th>Folio de solicitud</th>
+                <th>Sector / Dependencia / Proveedor</th>
+                <th>Responsable del servidor</th>
+                <th>Contacto</th>
+                <th>Estatus</th>
+                <th>IP del servidor</th>
+                <th>Subdominio aprobado</th>
+                <th>Proxy asignado</th>
+                <th>Tipo de despliegue</th>
+                <th>Puerto de publicación</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (r of datos22; track r.subdominioAprobado) {
+                <tr>
+                  <td>{{ r.folio }}</td>
+                  <td>{{ r.sectorDependencia }}</td>
+                  <td>{{ r.responsableServidor }}</td>
+                  <td>{{ r.contacto }}</td>
+                  <td><span class="estatus-badge" [class]="badgeClass(r.estatus)">{{ r.estatus }}</span></td>
+                  <td>{{ r.ipServidor }}</td>
+                  <td>{{ r.subdominioAprobado }}</td>
+                  <td>{{ r.proxyAsignado }}</td>
+                  <td>{{ r.tipoDespliegue }}</td>
+                  <td>{{ r.puertoPublicacion }}</td>
+                </tr>
+              } @empty {
+                <tr><td colspan="10" class="empty">Sin datos para el rango seleccionado</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </mat-tab>
+
+    </mat-tab-group>
+  }
+
+  <!-- ── 3. Admin Vulnerabilidades ───────────────────────────────────────── -->
+  @if (esAdminVuln) {
+    <h2 class="seccion-titulo">3. Reportes — Administrador de Vulnerabilidades</h2>
+    <mat-tab-group animationDuration="200ms">
+
+      <!-- 3.1 Resultados de vulnerabilidades -->
+      <mat-tab label="3.1 Resultados de vulnerabilidades">
+        <div class="table-wrap">
+          <table class="reporte-table">
+            <thead>
+              <tr>
+                <th>Folio de solicitud</th>
+                <th>Sector / Dependencia / Proveedor</th>
+                <th>Responsable del servidor</th>
+                <th>Teléfono Contacto</th>
+                <th>Correo Contacto</th>
+                <th>Estatus</th>
+                <th>IP del servidor</th>
+                <th>Subdominio aprobado</th>
+                <th>Fecha solicitud análisis</th>
+                <th>Fecha aplicación prueba</th>
+                <th>Resultado de la prueba</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (r of datos31; track r.folio) {
+                <tr>
+                  <td>{{ r.folio }}</td>
+                  <td>{{ r.sectorDependencia }}</td>
+                  <td>{{ r.responsableServidor }}</td>
+                  <td>{{ r.telefonoContacto }}</td>
+                  <td>{{ r.correoContacto }}</td>
+                  <td><span class="estatus-badge" [class]="badgeClass(r.estatus)">{{ r.estatus }}</span></td>
+                  <td>{{ r.ipServidor }}</td>
+                  <td>{{ r.subdominioAprobado }}</td>
+                  <td>{{ r.fechaSolicitudAnalisis }}</td>
+                  <td>{{ r.fechaAplicacionPrueba || '—' }}</td>
+                  <td>{{ r.resultadoPrueba }}</td>
+                </tr>
+              } @empty {
+                <tr><td colspan="11" class="empty">Sin datos para el rango seleccionado</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </mat-tab>
+
+      <!-- 3.2 Comunicaciones y aplicativos por IP -->
+      <mat-tab label="3.2 Comunicaciones por IP">
+        <div class="ip-search">
+          <mat-form-field appearance="outline">
+            <mat-label>IP del servidor</mat-label>
+            <mat-icon matPrefix>search</mat-icon>
+            <input matInput [(ngModel)]="ipFiltro32" placeholder="Ej. 10.0.0.1"
+                   (keyup.enter)="buscarIP32()">
+          </mat-form-field>
+          <button mat-raised-button color="primary" (click)="buscarIP32()">
+            <mat-icon>search</mat-icon> Buscar
+          </button>
+        </div>
+        <div class="table-wrap">
+          <table class="reporte-table">
+            <thead>
+              <tr>
+                <th>Folio de solicitud</th>
+                <th>Sector / Dependencia / Proveedor</th>
+                <th>Responsable del servidor</th>
+                <th>Contacto Responsable</th>
+                <th>Estatus</th>
+                <th>IP del servidor</th>
+                <th>Subdominio aprobado</th>
+                <th>Tipo de despliegue</th>
+                <th>Puertos solicitados</th>
+                <th>Reglas de firewall / puertos específicos</th>
+                <th>Integraciones externas</th>
+                <th>Otras</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (r of datos32; track r.folio) {
+                <tr>
+                  <td>{{ r.folio }}</td>
+                  <td>{{ r.sectorDependencia }}</td>
+                  <td>{{ r.responsableServidor }}</td>
+                  <td>{{ r.contacto }}</td>
+                  <td><span class="estatus-badge" [class]="badgeClass(r.estatus)">{{ r.estatus }}</span></td>
+                  <td>{{ r.ipServidor }}</td>
+                  <td>{{ r.subdominioAprobado }}</td>
+                  <td>{{ r.tipoDespliegue }}</td>
+                  <td>{{ r.puertosSolicitados }}</td>
+                  <td>{{ r.reglasFirewall }}</td>
+                  <td>{{ r.integraciones }}</td>
+                  <td>{{ r.otras }}</td>
+                </tr>
+              } @empty {
+                <tr><td colspan="12" class="empty">Ingrese una IP y presione Buscar</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </mat-tab>
+
+    </mat-tab-group>
+  }
+
+  <!-- ── 4. Admin General ────────────────────────────────────────────────── -->
+  @if (esAdminGeneral) {
+    <h2 class="seccion-titulo">4. Reportes — Administrador General</h2>
+    <mat-tab-group animationDuration="200ms">
+
+      <!-- 4.1 Estatus de solicitudes -->
+      <mat-tab label="4.1 Estatus de solicitudes">
+        <div class="table-wrap">
+          <table class="reporte-table">
+            <thead>
+              <tr>
+                <th>Sector</th>
+                <th>Dependencia</th>
+                <th>Responsable</th>
+                <th>Correo Contacto</th>
+                <th>Descripción del servidor</th>
+                <th>IP</th>
+                <th>Fecha de solicitud</th>
+                <th>Estatus (etapa en curso)</th>
+                <th>Fecha procesamiento</th>
+                <th>Rol / Responsable de etapa</th>
+                <th>Fecha de publicación</th>
+                <th>Tipo de despliegue</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (r of datos41; track r.ip) {
+                <tr>
+                  <td>{{ r.sector }}</td>
+                  <td>{{ r.dependencia }}</td>
+                  <td>{{ r.responsable }}</td>
+                  <td>{{ r.correo }}</td>
+                  <td>{{ r.descripcionServidor }}</td>
+                  <td>{{ r.ip }}</td>
+                  <td>{{ r.fechaSolicitud }}</td>
+                  <td><span class="estatus-badge" [class]="badgeClass(r.estatus)">{{ r.estatus }}</span></td>
+                  <td>{{ r.fechaProcesamiento }}</td>
+                  <td>{{ r.rolResponsable }}</td>
+                  <td>{{ r.fechaPublicacion || '—' }}</td>
+                  <td>{{ r.tipoDespliegue }}</td>
+                </tr>
+              } @empty {
+                <tr><td colspan="12" class="empty">Sin datos para el rango seleccionado</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </mat-tab>
+
+      <!-- 4.2 Recursos totalizados general -->
+      <mat-tab label="4.2 Recursos totalizados">
+        <div class="filtros-42">
+          <mat-form-field appearance="outline">
+            <mat-label>Agrupar por</mat-label>
+            <mat-select [(ngModel)]="filtro42" (selectionChange)="cargar()">
+              <mat-option value="general">General</mat-option>
+              <mat-option value="dependencia">Por dependencia</mat-option>
+              <mat-option value="sistemaOperativo">Por sistema operativo</mat-option>
+              <mat-option value="ip">Por IP</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="table-wrap">
+          <table class="reporte-table">
+            <thead>
+              <tr>
+                <th>Folio de solicitud</th>
+                <th>Sector / Dependencia / Proveedor</th>
+                <th>Responsable</th>
+                <th>Contacto</th>
+                <th>Estatus</th>
+                <th>IP del servidor</th>
+                <th>Administrador del servidor</th>
+                <th>Descripción del proyecto</th>
+                <th>Sistema Operativo</th>
+                <th>vCPU</th>
+                <th>RAM (GB)</th>
+                <th>Almacenamiento (GB)</th>
+                <th>Subdominio/s aprobado/s</th>
+                <th>VPN/s</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (r of datos42; track r.folio) {
+                <tr>
+                  <td>{{ r.folio }}</td>
+                  <td>{{ r.sectorDependencia }}</td>
+                  <td>{{ r.responsable }}</td>
+                  <td>{{ r.contacto }}</td>
+                  <td><span class="estatus-badge" [class]="badgeClass(r.estatus)">{{ r.estatus }}</span></td>
+                  <td>{{ r.ipServidor }}</td>
+                  <td>{{ r.adminServidor }}</td>
+                  <td>{{ r.descripcionProyecto }}</td>
+                  <td>{{ r.sistemaOperativo }}</td>
+                  <td class="num">{{ r.vcpu }}</td>
+                  <td class="num">{{ r.ram }}</td>
+                  <td class="num">{{ r.almacenamiento }}</td>
+                  <td>{{ r.subdominios }}</td>
+                  <td>{{ r.vpns }}</td>
+                </tr>
+              } @empty {
+                <tr><td colspan="14" class="empty">Sin datos para el rango seleccionado</td></tr>
+              }
+            </tbody>
+            <tfoot>
+              <tr class="fila-suma">
+                <td colspan="9" class="suma-label">Totales:</td>
+                <td class="num">{{ sumaVcpu42 }}</td>
+                <td class="num">{{ sumaRam42 }}</td>
+                <td class="num">{{ sumaAlm42 }}</td>
+                <td colspan="2"></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </mat-tab>
+
+    </mat-tab-group>
+  }
+
+  <!-- Sin acceso -->
+  @if (sinAcceso) {
+    <div class="sin-acceso">
+      <mat-icon>lock_outline</mat-icon>
+      <p>No tienes reportes disponibles para tu rol actual.</p>
+    </div>
+  }
+
+</div>

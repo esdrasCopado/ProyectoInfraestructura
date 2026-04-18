@@ -7,12 +7,26 @@ interface DiscoDuroPdf {
   etiqueta?: string;
 }
 
+interface VpnEntryPdf {
+  tipoVpn:           string;
+  vpnResponsable:    string;
+  vpnCargo:          string;
+  vpnTelefono:       string;
+  vpnCorreo:         string;
+  vpnPerfilAnterior: string;
+  vpnServidores:     string;
+  vpnFolio:          string;
+  vpnIp:             string;
+  vpnEmpresa:        string;
+  vpnVigencia:       string;
+}
+
 interface FormValue {
   areaRequirente: Record<string, string>;
   adminServidor: Record<string, string>;
   descripcion: Record<string, string>;
   specs: Record<string, string | number | boolean | DiscoDuroPdf[]>;
-  infraestructura: Record<string, string | boolean | string[]>;
+  infraestructura: Record<string, string | boolean | string[] | VpnEntryPdf[]>;
   responsiva: Record<string, string | boolean>;
 }
 
@@ -180,15 +194,42 @@ export class CartaPdfService {
     ];
   }
 
-  private rowsInfra(g: Record<string, string | boolean | string[]>): [string, string][] {
+  private rowsInfra(g: Record<string, string | boolean | string[] | VpnEntryPdf[]>): [string, string][] {
+    const VPN_TIPO: Record<string, string> = {
+      dependencia:   'Usuario VPN de dependencia',
+      proveedor:     'Usuario VPN para proveedor',
+      actualizacion: 'Actualización de usuario VPN',
+    };
+
     const subdominios = (g['subdominios'] as string[] | undefined) ?? [];
     const subdRows: [string, string][] = subdominios
       .filter(s => s.trim())
       .map((s, i) => [`Subdominio ${i + 1}:`, s] as [string, string]);
+
+    const vpns = (g['vpns'] as VpnEntryPdf[] | undefined) ?? [];
+    const vpnRows: [string, string][] = vpns.flatMap((vpn, i) => {
+      const num = vpns.length > 1 ? ` ${i + 1}` : '';
+      const rows: [string, string][] = [
+        [`VPN${num} — Tipo:`,             VPN_TIPO[vpn.tipoVpn] ?? vpn.tipoVpn],
+        [`VPN${num} — Folio:`,            vpn.vpnFolio      || '—'],
+        [`VPN${num} — IP:`,               vpn.vpnIp         || '—'],
+        [`VPN${num} — Responsable:`,      vpn.vpnResponsable || '—'],
+        [`VPN${num} — Cargo:`,            vpn.vpnCargo      || '—'],
+        [`VPN${num} — Teléfono:`,         vpn.vpnTelefono   || '—'],
+        [`VPN${num} — Correo:`,           vpn.vpnCorreo     || '—'],
+        [`VPN${num} — Empresa:`,          vpn.vpnEmpresa    || '—'],
+        [`VPN${num} — Perfil anterior:`,  vpn.vpnPerfilAnterior || '—'],
+        [`VPN${num} — Servidores:`,       vpn.vpnServidores || '—'],
+        [`VPN${num} — Vigencia (días):`,  vpn.vpnVigencia   || '—'],
+      ];
+      return rows;
+    });
+
     return [
       ...subdRows,
       ['Puerto:', String(g['puerto'] || '—')],
       ['Requiere SSL:', g['requiereSSL'] ? 'Sí' : 'No'],
+      ...vpnRows,
     ];
   }
 

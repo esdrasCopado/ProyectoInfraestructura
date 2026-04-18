@@ -1,16 +1,31 @@
 /* You can add global styles to this file, and also import other style files */
 
 :root {
-  --primary:      #85142b;
-  --primary-dark: #6a1022;
-  --secondary:    #b38e5d;
-  --bg-light:     #f4f4f4;
-  --text-dark:    #333;
+  /* Paleta institucional */
+  --primary:        #960E53;           /* Rosa cactus — color de marca */
+  --primary-dark:   #410324;           /* Púrpura oscuro — títulos */
+  --accent:         #DC7F37;           /* Dorado — selección activa */
+  --secondary:      #DC7F37;
+
+  /* Menú lateral */
+  --menu-bg:              #960E53;
+  --text-on-menu:         #ffffff;
+  --text-on-menu-muted:   rgba(255, 255, 255, 0.5);
+  --module-active-bg:     rgba(255, 255, 255, 0.9);
+  --submodule-active:     #DC7F37;
+
+  /* Contenido */
+  --bg-light:  #f4f6f9;
+  --text-dark: #333;
 
   /* Estados de formulario */
-  --state-focus:  #1976d2; /* azul  */
-  --state-valid:  #388e3c; /* verde */
-  --state-error:  #d32f2f; /* rojo  */
+  --state-focus: #1976d2;
+  --state-valid: #388e3c;
+  --state-error: #d32f2f;
+
+  /* Tipografía */
+  --font-title: 'Montserrat', sans-serif;
+  --font-body:  'Roboto', sans-serif;
 }
 
 html, body {
@@ -19,9 +34,9 @@ html, body {
   overflow-y: auto;
 }
 
-/* Compensar el header fijo de 96px */
+/* El sidebar ocupa la altura total — sin padding-top necesario */
 .main-content {
-  padding-top: 36px;
+  padding: 0;
 }
 
 body {
@@ -185,4 +200,206 @@ h3 {
     flex: 1;
     min-width: 16px;
   }
+}
+
+// ── Reportes — estilos compartidos ────────────────────────────────────────────
+
+.reporte-page {
+  padding: 28px 32px;
+  background: #f4f6f9;
+  min-height: calc(100vh - 64px);
+}
+
+.reporte-page__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.reporte-page__titulo {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+
+  h1 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #410324;
+    margin: 0;
+    border: none;
+    padding: 0;
+  }
+}
+
+.reporte-page__num {
+  font-family: 'Roboto', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: #960E53;
+  background: #fdf2f7;
+  border: 1px solid #f0d0e0;
+  padding: 2px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.reporte-page__exports {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-export {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border: none;
+  border-radius: 6px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+
+  mat-icon, .mat-icon { font-size: 16px; width: 16px; height: 16px; }
+  &:hover { opacity: 0.85; }
+
+  &--excel { background: #16a34a; color: #fff; }
+  &--pdf   { background: #dc2626; color: #fff; }
+}
+
+.reporte-filtros {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  background: #fff;
+  padding: 16px 20px;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.07);
+  margin-bottom: 20px;
+}
+
+.btn-buscar {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 20px;
+  height: 40px;
+  background: #960E53;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover { background: #7a0b43; }
+  mat-icon, .mat-icon { font-size: 18px; width: 18px; height: 18px; }
+}
+
+.btn-limpiar {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 16px;
+  height: 40px;
+  background: #f3f4f6;
+  color: #374151;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover { background: #e5e7eb; }
+  mat-icon, .mat-icon { font-size: 18px; width: 18px; height: 18px; }
+}
+
+.reporte-tabla-wrap {
+  overflow-x: auto;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.07);
+}
+
+.reporte-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Roboto', sans-serif;
+  font-size: 13px;
+  white-space: nowrap;
+
+  th {
+    background: #fdf2f7;
+    color: #410324;
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 12px;
+    border-bottom: 2px solid #f0d0e0;
+  }
+
+  td {
+    padding: 9px 14px;
+    border-bottom: 1px solid #f3f4f6;
+    color: #374151;
+    vertical-align: middle;
+  }
+
+  tbody tr:nth-child(even) td { background: #fdf9fb; }
+  tbody tr:hover td { background: #fdf2f7; }
+  tbody tr:last-child td { border-bottom: none; }
+
+  .td-folio {
+    color: #960E53;
+    font-weight: 700;
+  }
+
+  .td-num {
+    text-align: right;
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    color: #410324;
+  }
+
+  .td-empty {
+    text-align: center;
+    color: #9ca3af;
+    padding: 40px 16px;
+    font-style: italic;
+  }
+
+  tfoot .fila-suma td {
+    background: #fdf2f7;
+    font-weight: 700;
+    color: #410324;
+    border-top: 2px solid #960E53;
+    padding: 10px 14px;
+
+    &.suma-label { text-align: right; font-size: 12px; }
+  }
+}
+
+.estatus-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+
+  &.badge-completado { background: #dcfce7; color: #166534; }
+  &.badge-progreso   { background: #fdf2f7; color: #960E53; }
+  &.badge-pendiente  { background: #fef9c3; color: #854d0e; }
+  &.badge-vencido    { background: #fee2e2; color: #991b1b; }
+  &.badge-default    { background: #f3f4f6; color: #6b7280; }
 }

@@ -1,17 +1,9 @@
 <header class="header">
   <div class="header-content">
 
-    <!-- Logo → Dashboard -->
-    <div class="header-logo" routerLink="/dashboard" role="link" aria-label="Ir al dashboard">
-      <img src="SonoraLogo.png" alt="Logo Sonora" class="logo-image" />
-    </div>
-
-    <!-- Página actual -->
+    <!-- Título de la página actual -->
     <div class="header-nav">
       @if (paginaActual) {
-        <span class="nav-separator">
-          <mat-icon>chevron_right</mat-icon>
-        </span>
         <span class="nav-pagina">{{ paginaActual }}</span>
       }
     </div>
@@ -21,15 +13,6 @@
 
     <!-- Acciones de la barra -->
     <div class="header-actions">
-
-      <!-- Nueva solicitud — solo Dependencia/Cliente -->
-      @if (esDependencia || esAdminGeneral) {
-        <button class="action-btn action-btn--labeled" routerLink="/carta-aprovisionamiento"
-                aria-label="Nueva solicitud">
-          <mat-icon>add_circle_outline</mat-icon>
-          <span>Nueva solicitud</span>
-        </button>
-      }
 
       <!-- Notificaciones -->
       <button class="action-btn" routerLink="/notificaciones"
