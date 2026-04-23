@@ -31,7 +31,7 @@
 html, body {
   margin: 0;
   height: 100%;
-  overflow-y: auto;
+  overflow: hidden;
 }
 
 /* El sidebar ocupa la altura total — sin padding-top necesario */

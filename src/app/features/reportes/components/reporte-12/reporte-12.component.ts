@@ -19,14 +19,23 @@ export class Reporte12Component implements OnInit {
   fechaDesde = '';
   fechaHasta = '';
   datos: Reporte12Fila[] = [];
+  sumaVcpu = 0;
+  sumaRam = 0;
+  sumaAlm = 0;
 
   constructor(private svc: ReportesService) {}
 
   ngOnInit(): void { this.cargar(); }
 
   cargar(): void {
-    this.svc.getReporte12({ desde: this.fechaDesde, hasta: this.fechaHasta })
-      .subscribe(d => this.datos = d);
+    this.svc.getReporte12({ fechaInicio: this.fechaDesde, fechaFin: this.fechaHasta })
+      .subscribe(res => {
+        const r = res as any;
+        this.datos    = Array.isArray(r) ? r : (r?.items ?? []);
+        this.sumaVcpu = r?.totalVcpu          ?? 0;
+        this.sumaRam  = r?.totalRam           ?? 0;
+        this.sumaAlm  = r?.totalAlmacenamiento ?? 0;
+      });
   }
 
   limpiar(): void {
@@ -34,8 +43,4 @@ export class Reporte12Component implements OnInit {
     this.fechaHasta = '';
     this.cargar();
   }
-
-  get sumaVcpu()  { return this.datos.reduce((s, r) => s + r.vcpu, 0); }
-  get sumaRam()   { return this.datos.reduce((s, r) => s + r.ram, 0); }
-  get sumaAlm()   { return this.datos.reduce((s, r) => s + r.almacenamiento, 0); }
 }

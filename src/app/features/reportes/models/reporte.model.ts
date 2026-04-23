@@ -1,21 +1,22 @@
 export interface FiltrosReporte {
-  desde?: string;
-  hasta?: string;
+  fechaInicio?: string;
+  fechaFin?: string;
   ip?: string;
   agrupacion?: string;
 }
 
 export interface FilaBase {
-  folio: string;
-  sectorDependencia: string;
+  folioSolicitud: string;
+  dependencia: string;
   responsable: string;
   contacto: string;
-  estatus: string;
+  estatusProcesamieto: string;
+  fechaCreacion: string;
 }
 
 export interface FilaConServidor extends FilaBase {
   ipServidor: string;
-  adminServidor: string;
+  administradorServidor: string;
   descripcionProyecto: string;
   sistemaOperativo: string;
   vcpu: number;
@@ -28,6 +29,13 @@ export type Reporte11Fila = FilaBase;
 
 // 1.2 Recursos solicitados totalizados
 export type Reporte12Fila = FilaConServidor;
+
+export interface Reporte12Response {
+  items: Reporte12Fila[];
+  totalVcpu: number;
+  totalRam: number;
+  totalAlmacenamiento: number;
+}
 
 // 1.3 Por IP
 export interface Reporte13Fila extends FilaConServidor {

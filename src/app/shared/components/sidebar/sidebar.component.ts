@@ -118,17 +118,19 @@ export class SidebarComponent implements OnInit {
   }
 
   private filtrarMenu(menu: Seccion[]): Seccion[] {
-    return menu
-      .map(s => ({
-        ...s,
-        modulos: s.modulos
-          .filter(m => !m.roles || (this.rol && m.roles.includes(this.rol)))
-          .map(m => ({
-            ...m,
-            submodulos: m.submodulos?.filter(sm => !sm.roles || (this.rol && sm.roles.includes(this.rol))),
-          })),
-      }))
-      .filter(s => s.modulos.length > 0);
+    // TODO: restaurar filtro de roles antes de producción
+    return menu;
+    // return menu
+    //   .map(s => ({
+    //     ...s,
+    //     modulos: s.modulos
+    //       .filter(m => !m.roles || (this.rol && m.roles.includes(this.rol)))
+    //       .map(m => ({
+    //         ...m,
+    //         submodulos: m.submodulos?.filter(sm => !sm.roles || (this.rol && sm.roles.includes(this.rol))),
+    //       })),
+    //   }))
+    //   .filter(s => s.modulos.length > 0);
   }
 
   toggleModulo(label: string): void {

@@ -25,7 +25,7 @@ export class Reporte22Component implements OnInit {
   ngOnInit(): void { this.cargar(); }
 
   cargar(): void {
-    this.svc.getReporte22({ desde: this.fechaDesde, hasta: this.fechaHasta })
+    this.svc.getReporte22({ fechaInicio: this.fechaDesde, fechaFin: this.fechaHasta })
       .subscribe(d => this.datos = d);
   }
 

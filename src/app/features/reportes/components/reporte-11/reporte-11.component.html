@@ -44,13 +44,13 @@
         </tr>
       </thead>
       <tbody>
-        @for (r of datos; track r.folio) {
+        @for (r of datos; track r.folioSolicitud) {
           <tr>
-            <td class="td-folio">{{ r.folio }}</td>
-            <td>{{ r.sectorDependencia }}</td>
+            <td class="td-folio">{{ r.folioSolicitud }}</td>
+            <td>{{ r.dependencia }}</td>
             <td>{{ r.responsable }}</td>
             <td>{{ r.contacto }}</td>
-            <td><span class="estatus-badge {{ r.estatus | estatusBadge }}">{{ r.estatus }}</span></td>
+            <td><span class="estatus-badge {{ r.estatusProcesamieto | estatusBadge }}">{{ r.estatusProcesamieto }}</span></td>
           </tr>
         } @empty {
           <tr><td colspan="5" class="td-empty">Sin datos para el rango seleccionado</td></tr>

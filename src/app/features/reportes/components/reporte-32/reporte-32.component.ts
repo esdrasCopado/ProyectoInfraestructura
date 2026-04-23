@@ -24,7 +24,7 @@ export class Reporte32Component {
   constructor(private svc: ReportesService) {}
 
   buscar(): void {
-    this.svc.getReporte32(this.ip, { desde: this.fechaDesde, hasta: this.fechaHasta })
+    this.svc.getReporte32(this.ip, { fechaInicio: this.fechaDesde, fechaFin: this.fechaHasta })
       .subscribe(d => this.datos = d);
   }
 

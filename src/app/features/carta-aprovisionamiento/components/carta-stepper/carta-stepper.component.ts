@@ -316,7 +316,7 @@ export class CartaStepperComponent implements OnInit, AfterViewInit {
         subdominios: (v.infraestructura.subdominios as string[])
           .filter((s: string) => s.trim())
           .map((url: string) => ({
-            idUsuario:       null,
+            idUsuario:       idUsuario,
             nombreUrl:       url.trim(),
             fechaAsignacion: today,
             fechaExpiracion: null,

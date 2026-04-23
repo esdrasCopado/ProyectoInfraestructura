@@ -49,15 +49,15 @@
         </tr>
       </thead>
       <tbody>
-        @for (r of datos; track r.folio) {
+        @for (r of datos; track r.folioSolicitud) {
           <tr>
-            <td class="td-folio">{{ r.folio }}</td>
-            <td>{{ r.sectorDependencia }}</td>
+            <td class="td-folio">{{ r.folioSolicitud }}</td>
+            <td>{{ r.dependencia }}</td>
             <td>{{ r.responsable }}</td>
             <td>{{ r.contacto }}</td>
-            <td><span class="estatus-badge {{ r.estatus | estatusBadge }}">{{ r.estatus }}</span></td>
+            <td><span class="estatus-badge {{ r.estatusProcesamieto | estatusBadge }}">{{ r.estatusProcesamieto }}</span></td>
             <td>{{ r.ipServidor }}</td>
-            <td>{{ r.adminServidor }}</td>
+            <td>{{ r.administradorServidor }}</td>
             <td>{{ r.descripcionProyecto }}</td>
             <td>{{ r.sistemaOperativo }}</td>
             <td class="td-num">{{ r.vcpu }}</td>
