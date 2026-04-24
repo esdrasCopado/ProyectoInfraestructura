@@ -189,14 +189,13 @@ export class ConfirmarSolicitudComponent {
 
   get rowsInfra(): [string, string][] {
     const g = this.v.infraestructura ?? {};
-    const subdominios: [string, string][] = ((g.subdominios ?? []) as string[])
-      .filter((s: string) => s.trim())
-      .map((s: string, i: number) => [`Subdominio ${i + 1}:`, s] as [string, string]);
-    return [
-      ...subdominios,
-      ['Puerto:', g.puerto],
-      ['Requiere SSL:', g.requiereSSL ? 'Sí' : 'No'],
-    ];
+    const subdominios: [string, string][] = ((g.subdominios ?? []) as { subdominio: string; puerto: string }[])
+      .filter(e => e.subdominio?.trim())
+      .flatMap((e, i) => [
+        [`Subdominio ${i + 1}:`, e.subdominio] as [string, string],
+        [`Puerto ${i + 1}:`,    e.puerto || '—'] as [string, string],
+      ]);
+    return subdominios;
   }
 
   get rowsResponsiva(): [string, string][] {

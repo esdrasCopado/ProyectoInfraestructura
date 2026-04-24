@@ -17,22 +17,21 @@ export interface DashboardFiltros {
 // ── Interfaces del backend ────────────────────────────────────────────────────
 
 interface ResumenBackend {
-  total:      number;
-  nuevas:     number;
-  pendientes: number;
-  enProceso:  number;
-  terminadas: number;
+  total:           number;
+  porEstatus:      { estatus: string; total: number }[];
+  porTipoUso:      { tipoUso: string; total: number }[];
+  topDependencias: { dependencia: string; total: number }[];
 }
 
 interface SolicitudBackend {
-  id:            number;
-  titulo:        string;
-  folio:         string;
-  etapaActual:   string;   // nombre de etapa, no número
-  estado:        string;   // "Pendiente" | "En proceso" | "Terminado"
-  fecha_creacion: string;
-  servidores:    { hostname: string; [k: string]: any }[];
-  [k: string]:   any;
+  id:               number;
+  folio:            string;
+  nombreAplicacion: string;
+  estatus:          string;
+  createdAt:        string;
+  updatedAt:        string;
+  servidor:         { hostname: string; etapaOperativa: string; [k: string]: any } | null;
+  [k: string]:      any;
 }
 
 // ── Definición canónica de etapas ─────────────────────────────────────────────
@@ -81,9 +80,7 @@ export class DashboardService {
 
     return forkJoin({
       resumen:     this.http.get<ResumenBackend>(`${this.solicitudUrl}/dashboard/resumen`),
-      solicitudes: this.http.get<SolicitudBackend[]>(
-        `${this.solicitudUrl}/usuario/${this.authService.obtenerUsuario()?.id ?? ''}`
-      ),
+      solicitudes: this.http.get<SolicitudBackend[]>(`${this.solicitudUrl}`),
     }).pipe(
       map(({ resumen, solicitudes }) => {
         const mapped    = solicitudes.map(s => this.mapearSolicitud(s));
@@ -130,7 +127,8 @@ export class DashboardService {
   // ── Mapeo backend → modelo frontend ─────────────────────────────────────────
 
   private mapearSolicitud(s: SolicitudBackend): Solicitud {
-    const etapaIdx = ETAPAS_PROCESO.findIndex(e => e.nombre === s.etapaActual);
+    const etapaOperativa = s.servidor?.etapaOperativa ?? '';
+    const etapaIdx = ETAPAS_PROCESO.findIndex(e => e.nombre === etapaOperativa);
     const etapaNum = etapaIdx >= 0 ? etapaIdx + 1 : 1;
 
     const etapas: EtapaSolicitud[] = ETAPAS_PROCESO.map(e => ({
@@ -144,22 +142,24 @@ export class DashboardService {
     return {
       id:                 String(s.id),
       folio:              s.folio,
-      dependencia:        s.titulo,
-      nombreServidor:     s.servidores?.[0]?.hostname ?? '',
-      estado:             ESTADO_MAP[s.estado] ?? 'pendiente',
+      dependencia:        s.nombreAplicacion,
+      nombreServidor:     s.servidor?.hostname ?? '',
+      estado:             ESTADO_MAP[s.estatus] ?? 'pendiente',
       etapaActual:        etapaNum,
       etapas,
-      fechaRegistro:      s.fecha_creacion,
-      fechaActualizacion: s.fecha_creacion,
+      fechaRegistro:      s.createdAt,
+      fechaActualizacion: s.updatedAt ?? s.createdAt,
     };
   }
 
   private mapearMetricas(m: ResumenBackend): DashboardMetricas {
+    const get = (estatus: string) =>
+      m.porEstatus.find(e => e.estatus.toLowerCase() === estatus)?.total ?? 0;
     return {
-      total:      m.total,
-      enProgreso: m.enProceso,
-      pendientes: m.pendientes,
-      completadas: m.terminadas,
+      total:       m.total,
+      enProgreso:  get('en-proceso') + get('en proceso'),
+      pendientes:  get('pendiente'),
+      completadas: get('terminado') + get('completado'),
     };
   }
 

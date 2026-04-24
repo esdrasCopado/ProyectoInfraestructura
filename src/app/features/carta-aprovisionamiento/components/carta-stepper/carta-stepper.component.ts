@@ -108,8 +108,7 @@ export class CartaStepperComponent implements OnInit, AfterViewInit {
       // Apartado 4 — Infraestructura
       infraestructura: this.fb.group({
         subdominios: this.fb.array([]),
-        puerto:      [''],
-        requiereSSL: [false],
+        requiereSSL: [true],
         // Cada entrada VPN es un FormGroup dentro del array
         vpns: this.fb.array([this.crearVpnGroup()]),
       }),
@@ -133,6 +132,13 @@ export class CartaStepperComponent implements OnInit, AfterViewInit {
   get vpnsArray()          { return this.stepInfra.get('vpns') as FormArray; }
   get discosDurosArray()   { return this.stepSpecs.get('discosDuros') as FormArray; }
   get subdominiosArray()   { return this.stepInfra.get('subdominios') as FormArray; }
+
+  crearSubdominioGroup(): FormGroup {
+    return this.fb.group({
+      subdominio: [''],
+      puerto:     [''],
+    });
+  }
 
   crearDiscoDuroGroup(): FormGroup {
     return this.fb.group({
@@ -206,7 +212,6 @@ export class CartaStepperComponent implements OnInit, AfterViewInit {
         otrasSpecs:        faker.lorem.sentence(),
       },
       infraestructura: {
-        puerto:      faker.helpers.arrayElement(['80', '443', '8080']),
         requiereSSL: true,
       },
       responsiva: {
@@ -217,9 +222,12 @@ export class CartaStepperComponent implements OnInit, AfterViewInit {
       },
     });
 
-    // Chips de subdominios: limpiar y añadir demo
+    // Subdominios: limpiar y añadir demo
     while (this.subdominiosArray.length > 0) this.subdominiosArray.removeAt(0);
-    this.subdominiosArray.push(this.fb.control(`app${faker.string.numeric(2)}.sonora.gob.mx`));
+    this.subdominiosArray.push(this.fb.group({
+      subdominio: [`app${faker.string.numeric(2)}.sonora.gob.mx`],
+      puerto:     [faker.helpers.arrayElement(['80', '443', '8080'])],
+    }));
 
     // Primer disco duro
     (this.discosDurosArray.at(0) as FormGroup).patchValue({
@@ -277,35 +285,70 @@ export class CartaStepperComponent implements OnInit, AfterViewInit {
       etiqueta:  d.etiqueta || null,
     }));
 
-    const servicios = [v.specs.motorBD, v.specs.integraciones]
-      .filter((s: string) => s?.trim())
-      .join(', ') || null;
-
     const payload = {
+      // — Meta —
       idUsuario,
-      titulo:                     v.descripcion.nombreAplicacion,
-      arquitectura:               v.specs.arquitectura,
-      descripcion:                v.descripcion.descripcionServidor,
-      servicios,
-      responsableActual:          v.areaRequirente.responsable,
       usuarioUltimaActualizacion: v.areaRequirente.responsable,
       fechaActualizacion:         today,
-      fechaRequerida:             v.descripcion.fechaArranque,
-      comentariosSeguimiento:     this.orNull(v.descripcion.caracteristicasEspeciales),
+
+      // — I. Área requirente —
+      sector:              v.areaRequirente.sector,
+      dependencia:         v.areaRequirente.dependencia,
+      responsableActual:   v.areaRequirente.responsable,
+      cargoResponsable:    v.areaRequirente.cargo,
+      telefonoResponsable: v.areaRequirente.telefono,
+      correoResponsable:   v.areaRequirente.correo,
+
+      // — II. Administrador del servidor —
+      proveedor:        v.adminServidor.proveedor,
+      dependenciaAdmin: v.adminServidor.dependencia,
+      cargoAdmin:       v.adminServidor.cargo,
+      telefonoAdmin:    v.adminServidor.telefono,
+      correoAdmin:      v.adminServidor.correo,
+
+      // — III. Descripción (nivel solicitud) —
+      titulo:                 v.descripcion.nombreAplicacion,
+      descripcion:            v.descripcion.descripcionServidor,
+      fechaRequerida:         v.descripcion.fechaArranque,
+      comentariosSeguimiento: this.orNull(v.descripcion.caracteristicasEspeciales),
+
       servidores: [{
-        idSolicitud:                null,
-        hostname:                   v.descripcion.nombreServidor,
-        tipoUso:                    v.descripcion.tipoUso,
-        funcion:                    v.descripcion.nombreAplicacion,
+        idSolicitud: null,
+
+        // — III. Descripción del servidor —
+        hostname:    v.descripcion.nombreServidor,
+        tipoUso:     v.descripcion.tipoUso,
+        vigencia:    v.descripcion.vigencia,
+        funcion:     v.descripcion.nombreAplicacion,
+        descripcion: v.descripcion.descripcionServidor,
+
+        // — IV. Especificaciones técnicas —
+        plantillaRecursos:          v.specs.tipoRequerimiento,
+        modalidad:                  v.specs.modalidad,
         sistemaOperativo,
         requiereLlaveLicencia:      false,
         nucleos:                    v.specs.vCores,
         ram:                        v.specs.memoriaRam,
         discosDuros,
-        descripcion:                v.descripcion.descripcionServidor,
-        plantillaRecursos:          v.specs.tipoRequerimiento,
+        motorBD:                    this.orNull(v.specs.motorBD),
+        puertos:                    this.orNull(v.specs.puertos),
+        integraciones:              this.orNull(v.specs.integraciones),
+        otrasSpecs:                 this.orNull(v.specs.otrasSpecs),
         responsableInfraestructura: v.adminServidor.responsable,
         solicitudPublicacion:       v.descripcion.tipoUso === 'publicado',
+
+        // — V. Infraestructura —
+        subdominios: (v.infraestructura.subdominios as { subdominio: string; puerto: string }[])
+          .filter(e => e.subdominio.trim())
+          .map(e => ({
+            idUsuario:       idUsuario,
+            nombreUrl:       e.subdominio.trim(),
+            puerto:          this.orNull(e.puerto),
+            fechaAsignacion: today,
+            fechaExpiracion: null,
+            estado:          'Solicitado',
+          })),
+        requiereSSL: true,
         vpNs: (v.infraestructura.vpns as any[]).map((vpn: any) => ({
           idUsuarioResponsable: idUsuario,
           tipo:                 VPN_TIPO[vpn.tipoVpn] ?? vpn.tipoVpn,
@@ -313,18 +356,15 @@ export class CartaStepperComponent implements OnInit, AfterViewInit {
           fechaExpiracion:      vpnFechaExp(vpn.vpnVigencia),
           estado:               'Pendiente',
         })),
-        subdominios: (v.infraestructura.subdominios as string[])
-          .filter((s: string) => s.trim())
-          .map((url: string) => ({
-            idUsuario:       idUsuario,
-            nombreUrl:       url.trim(),
-            fechaAsignacion: today,
-            fechaExpiracion: null,
-            estado:          'Solicitado',
-          })),
         waFs:              [],
         evidenciasPruebas: [],
       }],
+
+      // — VI. Responsiva —
+      firmante:       v.responsiva.firmante,
+      numEmpleado:    v.responsiva.numEmpleado,
+      puestoFirmante: v.responsiva.puestoFirmante,
+      aceptaTerminos: v.responsiva.aceptaTerminos,
     };
 
     console.log('[onSubmit] payload enviado:', JSON.stringify(payload, null, 2));

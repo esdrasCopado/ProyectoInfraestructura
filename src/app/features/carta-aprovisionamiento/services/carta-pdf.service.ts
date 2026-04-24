@@ -201,10 +201,13 @@ export class CartaPdfService {
       actualizacion: 'Actualización de usuario VPN',
     };
 
-    const subdominios = (g['subdominios'] as string[] | undefined) ?? [];
+    const subdominios = (g['subdominios'] as unknown as { subdominio: string; puerto: string }[] | undefined) ?? [];
     const subdRows: [string, string][] = subdominios
-      .filter(s => s.trim())
-      .map((s, i) => [`Subdominio ${i + 1}:`, s] as [string, string]);
+      .filter(e => e.subdominio?.trim())
+      .flatMap((e, i) => [
+        [`Subdominio ${i + 1}:`, e.subdominio] as [string, string],
+        [`Puerto ${i + 1}:`,    e.puerto || '—'] as [string, string],
+      ]);
 
     const vpns = (g['vpns'] as VpnEntryPdf[] | undefined) ?? [];
     const vpnRows: [string, string][] = vpns.flatMap((vpn, i) => {
@@ -227,8 +230,6 @@ export class CartaPdfService {
 
     return [
       ...subdRows,
-      ['Puerto:', String(g['puerto'] || '—')],
-      ['Requiere SSL:', g['requiereSSL'] ? 'Sí' : 'No'],
       ...vpnRows,
     ];
   }

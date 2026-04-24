@@ -10,7 +10,7 @@ import { environment } from '../../../../environments/environment';
 export class CartaService {
 
   private apiUrl      = `${environment.apiUrl}/cartas`;
-  private solicitudUrl = `${environment.apiUrl}/solicitud`;
+  private solicitudUrl = `${environment.apiUrl}/solicitud/completa`;
   private vpnUrl       = `${environment.apiUrl}/vpn`;
 
   constructor(
@@ -47,7 +47,16 @@ export class CartaService {
     });
   }
 
-  obtenerVpnPorFolio(folio: string): Observable<VpnDisponible> {
-    return this.http.get<VpnDisponible>(`${this.vpnUrl}/folio/${folio}`);
+  buscarVpnsPorFolio(folio: string): Observable<VpnDisponible[]> {
+    if (environment.useMock) {
+      const term = folio.toLowerCase().trim();
+      const mock: VpnDisponible[] = [
+        { folio: 'SOL-2025-001', tipo: 'Usuario VPN de dependencia',   ip: '10.0.0.10' },
+        { folio: 'SOL-2025-002', tipo: 'Usuario VPN para proveedor',   ip: '10.0.0.11' },
+        { folio: 'SOL-2025-003', tipo: 'Actualizacion de usuario VPN', ip: '10.0.0.12' },
+      ];
+      return of(term ? mock.filter(v => v.folio.toLowerCase().includes(term)) : []);
+    }
+    return this.http.get<VpnDisponible[]>(`${this.vpnUrl}/folio/${encodeURIComponent(folio)}`);
   }
 }

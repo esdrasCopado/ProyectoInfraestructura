@@ -2,15 +2,12 @@ import { Component, Input, OnInit, OnDestroy, ChangeDetectorRef } from '@angular
 import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatChipsModule, MatChipInputEvent } from '@angular/material/chips';
-import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { debounceTime, map, startWith, Subscription } from 'rxjs';
+import { debounceTime, distinctUntilChanged, of, Subscription, switchMap } from 'rxjs';
 import { PhoneMaskDirective } from '../../../../../shared/directives/phone-mask.directive';
 import { CartaService } from '../../../services/carta.service';
 
@@ -32,13 +29,11 @@ const VPN_FIELDS = ['vpnResponsable','vpnCargo','vpnTelefono','vpnCorreo',
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
-    MatCheckboxModule,
     MatButtonToggleModule,
     MatRadioModule,
     MatButtonModule,
     MatIconModule,
     MatAutocompleteModule,
-    MatChipsModule,
     PhoneMaskDirective,
   ],
   templateUrl: './step-infraestructura.component.html',
@@ -47,12 +42,7 @@ const VPN_FIELDS = ['vpnResponsable','vpnCargo','vpnTelefono','vpnCorreo',
 export class StepInfraestructuraComponent implements OnInit, OnDestroy {
   @Input({ required: true }) form!: FormGroup;
 
-  readonly separatorKeysCodes = [ENTER, COMMA] as const;
-
-  vpnsDisponibles: VpnDisponible[] = [];
-  // Un control de búsqueda por cada tarjeta VPN (índice → control)
   folioSearchCtrls: FormControl<string>[] = [];
-  // Opciones filtradas por tarjeta
   foliosFiltrados: VpnDisponible[][] = [];
 
   private subs = new Subscription();
@@ -67,13 +57,13 @@ export class StepInfraestructuraComponent implements OnInit, OnDestroy {
     return this.form.get('subdominios') as FormArray;
   }
 
-  agregarChip(event: MatChipInputEvent): void {
-    const value = (event.value || '').trim();
-    if (value) {
-      this.subdominiosArray.push(this.fb.control(value));
-      this.cdr.markForCheck();
-    }
-    event.chipInput!.clear();
+  subdominioAt(i: number): FormGroup {
+    return this.subdominiosArray.at(i) as FormGroup;
+  }
+
+  agregarSubdominio(): void {
+    this.subdominiosArray.push(this.fb.group({ subdominio: [''], puerto: [''] }));
+    this.cdr.markForCheck();
   }
 
   eliminarSubdominio(i: number): void {
@@ -94,14 +84,6 @@ export class StepInfraestructuraComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    // CA-01: cargar el listado de VPNs del usuario al entrar al paso
-    this.subs.add(
-      this.cartaService.obtenerVpnsUsuario().subscribe(vpns => {
-        this.vpnsDisponibles = vpns;
-        this.cdr.markForCheck();
-      })
-    );
-
     Promise.resolve().then(() => {
       for (let i = 0; i < this.vpnsArray.length; i++) {
         const vpnGroup = this.vpnAt(i);
@@ -150,25 +132,18 @@ export class StepInfraestructuraComponent implements OnInit, OnDestroy {
     });
   }
 
-  // CA-02: registra un FormControl de búsqueda para la tarjeta i
-  // y suscribe el filtrado en tiempo real
   private registrarBusquedaFolio(i: number): void {
     const ctrl = new FormControl<string>('', { nonNullable: true });
     this.folioSearchCtrls[i] = ctrl;
-    this.foliosFiltrados[i]  = this.vpnsDisponibles;
+    this.foliosFiltrados[i]  = [];
 
     this.subs.add(
       ctrl.valueChanges.pipe(
-        startWith(''),
-        debounceTime(150),
-        map(q => {
-          const term = q.toLowerCase().trim();
-          return term
-            ? this.vpnsDisponibles.filter(v => v.folio.toLowerCase().includes(term))
-            : this.vpnsDisponibles;
-        })
-      ).subscribe(filtered => {
-        this.foliosFiltrados[i] = filtered;
+        debounceTime(300),
+        distinctUntilChanged(),
+        switchMap(q => q.trim() ? this.cartaService.buscarVpnsPorFolio(q) : of([]))
+      ).subscribe(results => {
+        this.foliosFiltrados[i] = results;
         this.cdr.markForCheck();
       })
     );

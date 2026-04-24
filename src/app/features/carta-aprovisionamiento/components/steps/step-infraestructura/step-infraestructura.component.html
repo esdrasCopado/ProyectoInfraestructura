@@ -10,39 +10,35 @@
 
     <div [formGroup]="form" class="fields-grid fields-grid--stack">
 
-      <!-- Subdominios (chips) -->
-      <div class="field-full">
-        <mat-form-field appearance="outline" class="subdominios-chip-field">
-          <mat-label>Subdominios solicitados</mat-label>
-          <mat-chip-grid #chipGrid aria-label="Subdominios solicitados">
-            @for (ctrl of subdominiosArray.controls; track $index; let i = $index) {
-              <mat-chip-row (removed)="eliminarSubdominio(i)">
-                {{ ctrl.value }}
-                <button matChipRemove aria-label="Eliminar subdominio">
-                  <mat-icon>cancel</mat-icon>
-                </button>
-              </mat-chip-row>
+      <!-- Subdominios con puerto por entrada -->
+      <div class="field-full" formArrayName="subdominios">
+        @for (ctrl of subdominiosArray.controls; track $index; let i = $index) {
+          <div class="subdominio-row" [formGroupName]="i">
+            <mat-form-field appearance="outline" class="subdominio-field">
+              <mat-label>Subdominio {{ i + 1 }}</mat-label>
+              <input matInput formControlName="subdominio"
+                     autocomplete="off" placeholder="ej. app.dominio.gob.mx">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="puerto-field">
+              <mat-label>Puerto</mat-label>
+              <input matInput formControlName="puerto"
+                     autocomplete="off" placeholder="Ej. 8080">
+            </mat-form-field>
+
+            @if (subdominiosArray.length > 1) {
+              <button mat-icon-button type="button" (click)="eliminarSubdominio(i)"
+                      aria-label="Eliminar subdominio">
+                <mat-icon>delete_outline</mat-icon>
+              </button>
             }
-            <input placeholder="ej. app.dominio.gob.mx → Enter para agregar"
-                   [matChipInputFor]="chipGrid"
-                   [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-                   (matChipInputTokenEnd)="agregarChip($event)" />
-          </mat-chip-grid>
-          <mat-hint>Presiona Enter para agregar cada subdominio</mat-hint>
-        </mat-form-field>
-      </div>
+          </div>
+        }
 
-      <!-- Puerto + SSL en la misma fila -->
-      <div class="field-full puerto-ssl-row">
-        <mat-form-field appearance="outline" class="puerto-field">
-          <mat-label>Puerto</mat-label>
-          <input matInput formControlName="puerto"
-                 autocomplete="off" placeholder="Ej. 8080">
-        </mat-form-field>
-
-        <mat-checkbox formControlName="requiereSSL">
-          Usar conexión segura (SSL)
-        </mat-checkbox>
+        <button mat-stroked-button type="button" (click)="agregarSubdominio()" class="add-subdominio-btn">
+          <mat-icon>add</mat-icon>
+          Agregar subdominio
+        </button>
       </div>
 
     </div>

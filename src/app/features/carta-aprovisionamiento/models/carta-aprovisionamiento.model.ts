@@ -59,9 +59,13 @@ export interface VpnEntry {
   vpnVigencia:       '30' | '60' | '90' | '';
 }
 
+export interface SubdominioEntry {
+  subdominio: string;
+  puerto:     string;
+}
+
 export interface Infraestructura {
-  subdominios: string[];
-  puerto:      string;
+  subdominios: SubdominioEntry[];
   requiereSSL: boolean;
   vpns:        VpnEntry[];
 }
