@@ -29,37 +29,25 @@
       <thead>
         <tr>
           <th>Folio de solicitud</th>
-          <th>Sector / Dependencia / Proveedor</th>
-          <th>Responsable del servidor</th>
-          <th>Contacto Responsable</th>
-          <th>Estatus</th>
-          <th>IP del servidor</th>
-          <th>Identificador de VPN</th>
-          <th>Usuario asignado</th>
-          <th>Fecha de creación</th>
-          <th>Fecha de vencimiento</th>
-          <th>Vigencia</th>
-          <th>Tipo VPN</th>
+          <th>Folio VPN</th>
+          <th>Hostname</th>
+          <th>Responsable</th>
+          <th>Tipo</th>
+          <th>Fecha de asignación</th>
         </tr>
       </thead>
       <tbody>
-        @for (r of datos; track r.identificadorVpn) {
+        @for (r of datos; track r.folioVpn) {
           <tr>
-            <td class="td-folio">{{ r.folio }}</td>
-            <td>{{ r.sectorDependencia }}</td>
-            <td>{{ r.responsableServidor }}</td>
-            <td>{{ r.contacto }}</td>
-            <td><span class="estatus-badge {{ r.estatus | estatusBadge }}">{{ r.estatus }}</span></td>
-            <td>{{ r.ipServidor }}</td>
-            <td>{{ r.identificadorVpn }}</td>
-            <td>{{ r.usuarioAsignado }}</td>
-            <td>{{ r.fechaCreacion }}</td>
-            <td>{{ r.fechaVencimiento }}</td>
-            <td>{{ r.vigencia }}</td>
-            <td>{{ r.tipoVpn }}</td>
+            <td class="td-folio">{{ r.folioSolicitud }}</td>
+            <td>{{ r.folioVpn }}</td>
+            <td>{{ r.hostname }}</td>
+            <td>{{ r.responsable }}</td>
+            <td>{{ r.tipo }}</td>
+            <td>{{ r.fechaAsignacion | date:'dd/MM/yyyy HH:mm' }}</td>
           </tr>
         } @empty {
-          <tr><td colspan="12" class="td-empty">Sin datos para el rango seleccionado</td></tr>
+          <tr><td colspan="6" class="td-empty">Sin datos para el rango seleccionado</td></tr>
         }
       </tbody>
     </table>

@@ -22,55 +22,229 @@
       </span>
     </div>
 
-    <!-- Info rápida -->
-    <div class="info-grid">
-      <div class="info-card">
-        <p class="info-label">Etapa actual</p>
-        <p class="info-value">{{ solicitud.etapaActual }} · {{ etapaActualNombre }}</p>
-      </div>
-      <div class="info-card">
-        <p class="info-label">Última actualización</p>
-        <p class="info-value">{{ solicitud.fechaActualizacion | date:'dd/MM/yyyy' }}</p>
+    <!-- Origen de la solicitud -->
+    <div class="card origen-card">
+      <p class="card-title">Origen de la solicitud</p>
+      <div class="origen-grid">
+        <div>
+          <p class="field-label">Folio</p>
+          <p class="field-value">{{ solicitud.folio }}</p>
+        </div>
+        <div>
+          <p class="field-label">Enviada</p>
+          <p class="field-value">{{ solicitud.fechaRegistro | date:'dd/MM/yyyy HH:mm' }}</p>
+        </div>
+        <div>
+          <p class="field-label">Enviada por</p>
+          <p class="field-value">{{ solicitud.carta?.areaRequirente?.responsable || '—' }}</p>
+        </div>
       </div>
     </div>
 
     <!-- Layout principal -->
     <div class="layout">
 
-      <!-- Timeline -->
-      <div class="card">
-        <p class="card-title">Seguimiento del proceso</p>
-        <div class="timeline">
-          @for (etapa of solicitud.etapas; track etapa.numero; let last = $last) {
-            <div class="t-item">
-              <div class="t-left">
-                <div class="t-dot {{ claseEstado(etapa.estado) }}">
-                  @if (etapa.estado === 'completada') { ✓ }
-                  @else { {{ etapa.numero }} }
-                </div>
-                @if (!last) {
-                  <div class="t-line {{ etapa.estado === 'completada' ? 't-line-done' : '' }}"></div>
+      <!-- ── Columna izquierda ────────────────────────────────────────────── -->
+      <div class="exp-carta">
+
+        <!-- Sección 1 · Datos de contacto y ente solicitante -->
+        <details class="carta-seccion" open>
+          <summary class="carta-seccion-summary">
+            <span class="seccion-titulo">
+              <span class="seccion-num">1</span>
+              Datos de contacto y ente solicitante
+            </span>
+            <span class="seccion-arrow"></span>
+          </summary>
+          <div class="carta-seccion-body">
+            @if (solicitud.carta?.areaRequirente; as area) {
+              <p class="subseccion-label">Área requirente</p>
+              <table class="datos-tabla">
+                <tr><td class="dato-key">Sector</td>      <td class="dato-val">{{ area.sector }}</td></tr>
+                <tr><td class="dato-key">Dependencia</td> <td class="dato-val">{{ area.dependencia }}</td></tr>
+                <tr><td class="dato-key">Responsable</td> <td class="dato-val">{{ area.responsable }}</td></tr>
+                <tr><td class="dato-key">Cargo</td>       <td class="dato-val">{{ area.cargo }}</td></tr>
+                <tr><td class="dato-key">Teléfono</td>    <td class="dato-val">{{ area.telefono }}</td></tr>
+                <tr><td class="dato-key">Correo</td>      <td class="dato-val dato-email">{{ area.correo }}</td></tr>
+              </table>
+            }
+            @if (solicitud.carta?.adminServidor; as admin) {
+              <p class="subseccion-label">Administrador del servidor</p>
+              <table class="datos-tabla">
+                <tr><td class="dato-key">Proveedor</td>     <td class="dato-val">{{ admin.proveedor }}</td></tr>
+                <tr><td class="dato-key">Dependencia</td>   <td class="dato-val">{{ admin.dependencia }}</td></tr>
+                <tr><td class="dato-key">Administrador</td> <td class="dato-val">{{ admin.responsable }}</td></tr>
+                <tr><td class="dato-key">Cargo</td>         <td class="dato-val">{{ admin.cargo }}</td></tr>
+                <tr><td class="dato-key">Teléfono</td>      <td class="dato-val">{{ admin.telefono }}</td></tr>
+                <tr><td class="dato-key">Correo</td>        <td class="dato-val dato-email">{{ admin.correo }}</td></tr>
+              </table>
+            }
+            @if (!solicitud.carta?.areaRequirente && !solicitud.carta?.adminServidor) {
+              <p class="sin-datos">Datos de contacto no disponibles.</p>
+            }
+          </div>
+        </details>
+
+        <!-- Sección 2 · Descripción del requerimiento -->
+        <details class="carta-seccion">
+          <summary class="carta-seccion-summary">
+            <span class="seccion-titulo">
+              <span class="seccion-num">2</span>
+              Descripción del requerimiento
+            </span>
+            <span class="seccion-arrow"></span>
+          </summary>
+          <div class="carta-seccion-body">
+            @if (solicitud.carta?.descripcion; as desc) {
+              <table class="datos-tabla">
+                <tr><td class="dato-key">Uso principal</td>       <td class="dato-val">{{ desc.descripcionServidor }}</td></tr>
+                <tr><td class="dato-key">Nombre propuesto</td>    <td class="dato-val">{{ desc.nombreServidor }}</td></tr>
+                <tr><td class="dato-key">Aplicación</td>          <td class="dato-val">{{ desc.nombreAplicacion }}</td></tr>
+                <tr><td class="dato-key">Tipo de uso</td>         <td class="dato-val">{{ desc.tipoUso === 'publicado' ? 'Publicado' : 'Interno' }}</td></tr>
+                <tr><td class="dato-key">Fecha de arranque</td>   <td class="dato-val">{{ desc.fechaArranque | date:'dd/MM/yyyy' }}</td></tr>
+                <tr><td class="dato-key">Vigencia</td>            <td class="dato-val">{{ desc.vigencia }}</td></tr>
+                @if (desc.caracteristicasEspeciales) {
+                  <tr><td class="dato-key">Características especiales</td><td class="dato-val">{{ desc.caracteristicasEspeciales }}</td></tr>
                 }
-              </div>
-              <div class="t-content">
-                <p class="t-name">
-                  {{ etapa.nombre }}
-                  @if (etapa.responsable) {
-                    <span class="t-role">{{ etapa.responsable }}</span>
+              </table>
+            } @else {
+              <p class="sin-datos">Descripción no disponible.</p>
+            }
+          </div>
+        </details>
+
+        <!-- Sección 3 · Especificaciones técnicas -->
+        <details class="carta-seccion">
+          <summary class="carta-seccion-summary">
+            <span class="seccion-titulo">
+              <span class="seccion-num">3</span>
+              Especificaciones técnicas
+            </span>
+            <span class="seccion-arrow"></span>
+          </summary>
+          <div class="carta-seccion-body">
+            @if (solicitud.carta?.specs; as sp) {
+              <table class="datos-tabla">
+                <tr><td class="dato-key">Tipo</td>              <td class="dato-val">{{ sp.tipoRequerimiento === 'estandar' ? 'Estándar' : 'Específico' }}</td></tr>
+                <tr><td class="dato-key">Modalidad</td>         <td class="dato-val">{{ sp.modalidad === 'nuevo' ? 'Nuevo' : 'Renovación' }}</td></tr>
+                <tr><td class="dato-key">Sistema operativo</td> <td class="dato-val">{{ soLabel(sp.sistemaOperativo) }}</td></tr>
+                <tr><td class="dato-key">vCores</td>            <td class="dato-val">{{ sp.vCores }}</td></tr>
+                <tr><td class="dato-key">Memoria RAM</td>       <td class="dato-val">{{ sp.memoriaRam }} GB</td></tr>
+                <tr><td class="dato-key">Almacenamiento</td>    <td class="dato-val">{{ totalAlmacenamiento(sp.discosDuros) }} GB</td></tr>
+                @if (sp.motorBD) {
+                  <tr><td class="dato-key">Motor BD</td>        <td class="dato-val">{{ sp.motorBD }}</td></tr>
+                }
+                @if (sp.puertos) {
+                  <tr><td class="dato-key">Puertos</td>         <td class="dato-val">{{ sp.puertos }}</td></tr>
+                }
+                @if (sp.integraciones) {
+                  <tr><td class="dato-key">Integraciones</td>   <td class="dato-val">{{ sp.integraciones }}</td></tr>
+                }
+              </table>
+            } @else {
+              <p class="sin-datos">Especificaciones no disponibles.</p>
+            }
+          </div>
+        </details>
+
+        <!-- Sección 4 · Infraestructura · Subdominio y VPN -->
+        @if ((solicitud.vpns && solicitud.vpns.length > 0) || (solicitud.subdominios && solicitud.subdominios.length > 0)) {
+          <details class="carta-seccion" [open]="solicitud.etapaActual >= 5">
+            <summary class="carta-seccion-summary">
+              <span class="seccion-titulo">
+                <span class="seccion-num">4</span>
+                Infraestructura · Subdominio y VPN
+              </span>
+              <span class="seccion-arrow"></span>
+            </summary>
+            <div class="carta-seccion-body">
+
+              @if (solicitud.vpns && solicitud.vpns.length > 0) {
+                <p class="subseccion-label">VPN · {{ solicitud.vpns.length }} asignada{{ solicitud.vpns.length > 1 ? 's' : '' }}</p>
+                <div class="infra-cards">
+                  @for (v of solicitud.vpns; track v.assignedAt) {
+                    <div class="infra-card">
+                      <div class="infra-card__header">
+                        <span class="infra-card__tipo">{{ v.vpnType }}</span>
+                      </div>
+                      <div class="infra-card__grid">
+                        <div><span class="dato-key">Responsable</span><span class="dato-val">{{ v.responsable }}</span></div>
+                        <div><span class="dato-key">Cargo</span><span class="dato-val">{{ v.cargo || '—' }}</span></div>
+                        <div><span class="dato-key">Teléfono</span><span class="dato-val">{{ v.phone || '—' }}</span></div>
+                        <div><span class="dato-key">Asignación</span><span class="dato-val">{{ v.assignedAt | date:'dd/MM/yyyy' }}</span></div>
+                      </div>
+                    </div>
                   }
+                </div>
+              }
+
+              @if (solicitud.subdominios && solicitud.subdominios.length > 0) {
+                <p class="subseccion-label" [class.mt-12]="solicitud.vpns && solicitud.vpns.length > 0">
+                  Subdominio · {{ solicitud.subdominios.length }} asignado{{ solicitud.subdominios.length > 1 ? 's' : '' }}
                 </p>
-                <p class="t-meta">
-                  {{ etapa.fechaActualizacion ? (etapa.fechaActualizacion | date:'dd/MM/yyyy') : 'Pendiente' }}
-                </p>
-              </div>
+                <div class="infra-tabla-wrap">
+                  <table class="infra-tabla">
+                    <thead>
+                      <tr>
+                        <th>URL</th>
+                        <th>Puerto</th>
+                        <th>Estado</th>
+                        <th>SSL</th>
+                        <th>Asignación</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (d of solicitud.subdominios; track d.requestedName) {
+                        <tr>
+                          <td>{{ d.requestedName }}</td>
+                          <td>{{ d.port || '—' }}</td>
+                          <td><span class="estatus-badge estatus-badge--{{ d.status | lowercase }}">{{ d.status }}</span></td>
+                          <td>{{ d.sslRequired ? 'Sí' : 'No' }}</td>
+                          <td>{{ d.assignedAt | date:'dd/MM/yyyy' }}</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+
             </div>
-          }
-        </div>
+          </details>
+        }
+
       </div>
 
-      <!-- Panel de acción -->
-      <div class="card">
-        @if (puedeActuar && panelForm) {
+      <!-- ── Columna derecha: panel de acción ────────────────────────────── -->
+      <div class="card panel-sticky">
+
+        @if (solicitud.etapaActual === 1 && esAdminCD) {
+
+          <!-- Panel Etapa 1 para Admin CD -->
+          <p class="panel-title">Acción requerida · Etapa 1</p>
+          <p class="panel-desc">Verifica que la información esté completa antes de avanzar.</p>
+
+          <button mat-flat-button color="primary"
+                  class="btn-accion"
+                  [disabled]="guardando"
+                  (click)="onGuardar()">
+            {{ guardando ? 'Guardando...' : 'Guardar y avanzar etapa' }}
+          </button>
+
+          <button mat-stroked-button
+                  class="btn-accion"
+                  [disabled]="guardando"
+                  (click)="onSolicitarCorrecciones()">
+            Solicitar correcciones
+          </button>
+
+          <div class="panel-al-avanzar">
+            <p class="panel-al-avanzar-title">Al avanzar</p>
+            <p class="panel-al-avanzar-desc">Se registra acuse con tu usuario y fecha. La solicitud pasa a Etapa 2 · Validación de recursos.</p>
+          </div>
+
+        } @else if (puedeActuar && panelForm) {
+
+          <!-- Panel para otras etapas con acción -->
           <p class="panel-title">Acción requerida · Etapa {{ solicitud.etapaActual }}</p>
 
           <form [formGroup]="panelForm">
@@ -81,17 +255,14 @@
                 <mat-label>vCores</mat-label>
                 <input matInput type="number" formControlName="vCores">
               </mat-form-field>
-
               <mat-form-field appearance="outline">
                 <mat-label>Memoria RAM (GB)</mat-label>
                 <input matInput type="number" formControlName="memoriaRam">
               </mat-form-field>
-
               <mat-form-field appearance="outline">
                 <mat-label>Almacenamiento (GB)</mat-label>
                 <input matInput type="number" formControlName="almacenamiento">
               </mat-form-field>
-
               <mat-form-field appearance="outline">
                 <mat-label>IP asignada</mat-label>
                 <input matInput formControlName="ip" placeholder="Ej. 10.0.0.1">
@@ -107,7 +278,6 @@
                   <mat-option value="publico">Servidor público</mat-option>
                 </mat-select>
               </mat-form-field>
-
               <mat-form-field appearance="outline">
                 <mat-label>Vigencia</mat-label>
                 <mat-select formControlName="vigencia">
@@ -116,12 +286,10 @@
                   <mat-option value="90">90 días</mat-option>
                 </mat-select>
               </mat-form-field>
-
               <mat-form-field appearance="outline">
                 <mat-label>Responsable VPN</mat-label>
                 <input matInput formControlName="responsable">
               </mat-form-field>
-
               <mat-form-field appearance="outline">
                 <mat-label>Correo electrónico</mat-label>
                 <input matInput formControlName="correo" type="email">
@@ -135,7 +303,6 @@
                 <input matInput formControlName="subdominioSolicitado"
                        placeholder="Ej. miapp.sonora.gob.mx">
               </mat-form-field>
-
               <mat-form-field appearance="outline">
                 <mat-label>Puerto</mat-label>
                 <input matInput formControlName="puerto" placeholder="Ej. 8080">
@@ -158,6 +325,7 @@
             El proceso está en espera de otro rol.
           </p>
         }
+
       </div>
 
     </div>

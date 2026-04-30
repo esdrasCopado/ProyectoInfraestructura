@@ -189,6 +189,21 @@
   ::ng-deep .mat-icon { font-size: 18px; }
 }
 
+.vpn-folio-agregar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: -4px;
+  margin-bottom: 4px;
+
+  .vpn-folio-agregar-msg {
+    font-size: 12px;
+    color: #6b7280;
+  }
+
+  button { font-size: 12px; }
+}
+
 .add-vpn-btn {
   margin-top: 4px;
   color: var(--primary);

@@ -66,9 +66,9 @@ export class ReportesService {
   getReporte21(filtros: FiltrosReporte): Observable<Reporte21Fila[]> {
     if (environment.useMock) {
       return of([
-        { folio: 'SOL-2025-001', sectorDependencia: 'STPS / Secretaría del Trabajo',   responsableServidor: 'Juan Pérez',  contacto: 'juan.perez@sonora.gob.mx',  estatus: 'Activo', ipServidor: '10.0.0.10', identificadorVpn: 'VPN-2025-001', usuarioAsignado: 'jperez',  fechaCreacion: '2025-01-15', fechaVencimiento: '2025-04-15', vigencia: '90 días', tipoVpn: 'Usuario VPN de dependencia'   },
-        { folio: 'SOL-2025-002', sectorDependencia: 'ISSSTESON / Salud',                responsableServidor: 'María López', contacto: 'maria.lopez@isssteson.gob.mx', estatus: 'Activo', ipServidor: '10.0.1.11', identificadorVpn: 'VPN-2025-002', usuarioAsignado: 'mlopez', fechaCreacion: '2025-02-01', fechaVencimiento: '2025-05-01', vigencia: '90 días', tipoVpn: 'Usuario VPN para proveedor'    },
-        { folio: 'SOL-2025-003', sectorDependencia: 'SEDESSON / Desarrollo Social',     responsableServidor: 'Carlos Ruiz', contacto: 'carlos.ruiz@sedesson.gob.mx',  estatus: 'Vencido', ipServidor: '10.0.2.12', identificadorVpn: 'VPN-2025-003', usuarioAsignado: 'cruiz',  fechaCreacion: '2025-01-05', fechaVencimiento: '2025-02-04', vigencia: '30 días', tipoVpn: 'Actualización de usuario VPN' },
+        { folioSolicitud: 'SOL-20260424-034203-748', folioVpn: '1', hostname: 'SRV-75RUZS', responsable: 'Juan Pérez',  tipo: 'dependencia', fechaAsignacion: '2026-04-24T03:42:03.680017Z' },
+        { folioSolicitud: 'SOL-20260424-035701-228', folioVpn: '2', hostname: 'SRV-7TCWRI', responsable: 'María López', tipo: 'dependencia', fechaAsignacion: '2026-04-24T03:57:01.228706Z' },
+        { folioSolicitud: 'SOL-20260424-114851-166', folioVpn: '3', hostname: 'SRV-LFWRME', responsable: 'Carlos Ruiz', tipo: 'proveedor',   fechaAsignacion: '2026-04-24T11:48:51.166945Z' },
       ]);
     }
     return this.http.get<Reporte21Fila[]>(`${this.base}/infraestructura/vpn`, { params: filtros as any });

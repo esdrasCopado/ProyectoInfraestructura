@@ -275,13 +275,18 @@ h3 {
 .reporte-filtros {
   display: flex;
   align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
+  gap: 12px;
+  flex-wrap: nowrap;
   background: #fff;
-  padding: 16px 20px;
+  padding: 12px 20px;
   border-radius: 10px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.07);
   margin-bottom: 20px;
+
+  mat-form-field {
+    width: 160px;
+    flex-shrink: 0;
+  }
 }
 
 .btn-buscar {

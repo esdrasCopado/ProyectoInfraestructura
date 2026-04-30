@@ -45,18 +45,12 @@ export interface Reporte13Fila extends FilaConServidor {
 
 // 2.1 VPN
 export interface Reporte21Fila {
-  folio: string;
-  sectorDependencia: string;
-  responsableServidor: string;
-  contacto: string;
-  estatus: string;
-  ipServidor: string;
-  identificadorVpn: string;
-  usuarioAsignado: string;
-  fechaCreacion: string;
-  fechaVencimiento: string;
-  vigencia: string;
-  tipoVpn: string;
+  folioSolicitud: string;
+  folioVpn: string;
+  hostname: string;
+  responsable: string;
+  tipo: string;
+  fechaAsignacion: string;
 }
 
 // 2.2 Subdominios

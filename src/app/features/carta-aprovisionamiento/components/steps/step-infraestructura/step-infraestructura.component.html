@@ -189,6 +189,14 @@
                     }
                   </mat-autocomplete>
                 </mat-form-field>
+                @if (folioSinResultados[i]) {
+                  <div class="vpn-folio-agregar">
+                    <span class="vpn-folio-agregar-msg">Folio no encontrado.</span>
+                    <button mat-button type="button" color="primary" (click)="agregarFolioVpn(i)">
+                      Agregar "{{ folioSearchCtrls[i].value }}"
+                    </button>
+                  </div>
+                }
                 @if (hasErrorAt(i,'vpnFolio','required')) {
                   <span [id]="'vpn-folio-err-'+i" class="field-error" role="alert">⚠ Ingresa el folio VPN</span>
                 }
@@ -290,6 +298,14 @@
                     }
                   </mat-autocomplete>
                 </mat-form-field>
+                @if (folioSinResultados[i]) {
+                  <div class="vpn-folio-agregar">
+                    <span class="vpn-folio-agregar-msg">Folio no encontrado.</span>
+                    <button mat-button type="button" color="primary" (click)="agregarFolioVpn(i)">
+                      Agregar "{{ folioSearchCtrls[i].value }}"
+                    </button>
+                  </div>
+                }
                 @if (hasErrorAt(i,'vpnFolio','required')) {
                   <span [id]="'prov-folio-err-'+i" class="field-error" role="alert">⚠ Ingresa el folio VPN</span>
                 }

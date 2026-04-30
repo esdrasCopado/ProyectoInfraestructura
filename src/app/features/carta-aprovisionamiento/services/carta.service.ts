@@ -57,6 +57,18 @@ export class CartaService {
       ];
       return of(term ? mock.filter(v => v.folio.toLowerCase().includes(term)) : []);
     }
-    return this.http.get<VpnDisponible[]>(`${this.vpnUrl}/folio/${encodeURIComponent(folio)}`);
+    const idUsuario = this.obtenerIdUsuario();
+    return this.http.get<VpnDisponible[]>(
+      `${this.vpnUrl}/folio/${encodeURIComponent(folio)}`,
+      { params: { ...(idUsuario != null ? { idUsuario: String(idUsuario) } : {}) } }
+    );
+  }
+
+  agregarFolioVpn(folio: string): Observable<VpnDisponible> {
+    if (environment.useMock) {
+      return of({ folio, tipo: 'Usuario VPN de dependencia' });
+    }
+    const idUsuario = this.obtenerIdUsuario();
+    return this.http.post<VpnDisponible>(this.vpnUrl, { folio, idUsuario });
   }
 }

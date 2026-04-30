@@ -1,4 +1,61 @@
 import { DashboardResponse } from '../models/solicitud.model';
+import { CartaAprovisionamiento } from '../../carta-aprovisionamiento/models/carta-aprovisionamiento.model';
+
+const CARTA_SOL_007: CartaAprovisionamiento = {
+  areaRequirente: {
+    sector:      'Cultural',
+    dependencia: 'Secretaría de Cultura',
+    responsable: 'L. Méndez',
+    cargo:       'Jefe de TI',
+    telefono:    '662-555-0143',
+    correo:      'l.mendez@cultura.son.gob.mx',
+  },
+  adminServidor: {
+    sector:      'Tecnología',
+    dependencia: 'SoftSon S.A.',
+    proveedor:   'SoftSon S.A.',
+    responsable: 'R. Torres',
+    cargo:       'DevOps Lead',
+    telefono:    '662-555-0200',
+    correo:      'r.torres@softson.mx',
+  },
+  descripcion: {
+    descripcionServidor:       'Servidor para portal de difusión cultural y eventos del estado',
+    nombreServidor:            'srv-cultura-app-07',
+    nombreAplicacion:          'Portal Cultura Sonora',
+    tipoUso:                   'publicado',
+    fechaArranque:             '2025-04-01',
+    vigencia:                  '12 meses',
+    caracteristicasEspeciales: '',
+  },
+  specs: {
+    tipoRequerimiento:    'estandar',
+    modalidad:            'nuevo',
+    sistemaOperativo:     'linux',
+    sistemaOperativoOtro: '',
+    vCores:               2,
+    memoriaRam:           4,
+    discosDuros:          [{ capacidad: 50, tipo: 'SSD', etiqueta: 'Sistema' }],
+    motorBD:              'PostgreSQL',
+    puertos:              '80, 443, 8080',
+    integraciones:        '',
+    otrasSpecs:           '',
+    ipActual:             '',
+    nombreServidorActual: '',
+    tipoRenovacion:       '',
+  },
+  infraestructura: {
+    subdominios: [{ subdominio: 'cultura.sonora.gob.mx', puerto: '443' }],
+    requiereSSL: true,
+    vpns:        [],
+  },
+  responsiva: {
+    firmante:       'L. Méndez',
+    numEmpleado:    'EMP-1042',
+    puestoFirmante: 'Jefe de TI',
+    aceptaTerminos: true,
+  },
+};
 
 export const DASHBOARD_MOCK: DashboardResponse = {
   metricas: {
@@ -173,6 +230,7 @@ export const DASHBOARD_MOCK: DashboardResponse = {
       etapaActual: 1,
       fechaRegistro: '2025-03-14',
       fechaActualizacion: '2025-03-15',
+      carta: CARTA_SOL_007,
       etapas: [
         { numero: 1,  nombre: 'Registro carta',      estado: 'en-curso',            fechaActualizacion: '2025-03-15', responsable: 'Laura Díaz' },
         { numero: 2,  nombre: 'Validación recursos', estado: 'sin-iniciar' },

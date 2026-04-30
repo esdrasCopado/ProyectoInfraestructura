@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { DatePipe } from '@angular/common';
+import { DatePipe, LowerCasePipe } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -10,12 +10,14 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { DashboardService } from '../../services/dashboard.service';
 import { AuthService, RolUsuario } from '../../services/auth.service';
 import { Solicitud, EstadoEtapa } from '../../models/solicitud.model';
+import { DiscoDuro } from '../../../carta-aprovisionamiento/models/carta-aprovisionamiento.model';
 
 @Component({
   selector: 'app-expediente-detalle',
   standalone: true,
   imports: [
     DatePipe,
+    LowerCasePipe,
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
@@ -102,6 +104,18 @@ export class ExpedienteDetalleComponent implements OnInit {
     }
   }
 
+  get esAdminCD(): boolean {
+    return this.rolUsuario === 'admin-cd' || this.rolUsuario === 'admin-general';
+  }
+
+  soLabel(so: 'windows' | 'linux' | 'otro'): string {
+    return ({ windows: 'Windows', linux: 'Linux', otro: 'Otro' } as const)[so] ?? so;
+  }
+
+  totalAlmacenamiento(discos: DiscoDuro[]): number {
+    return discos.reduce((acc, d) => acc + d.capacidad, 0);
+  }
+
   get puedeActuar(): boolean {
     const etapa = this.solicitud?.etapaActual;
     const rol = this.rolUsuario;
@@ -142,12 +156,20 @@ export class ExpedienteDetalleComponent implements OnInit {
     return clases[estado];
   }
 
+  onSolicitarCorrecciones(): void {
+    // TODO: llamar endpoint para devolver la solicitud a la dependencia con observaciones
+    console.warn('[Expediente] Solicitar correcciones – pendiente de integrar con API');
+  }
+
   onGuardar(): void {
     if (this.panelForm.invalid || !this.solicitud) return;
 
     const servidorId = this.solicitud.servidorId;
     if (!servidorId) {
-      console.error('[Expediente] No se encontró el ID del servidor');
+      // Etapa 1: el servidor aún no existe; avanzar mediante endpoint de solicitud
+      // TODO: integrar con PATCH /solicitud/{id}/etapa cuando esté disponible
+      console.info('[Expediente] Avanzando Etapa 1 sin servidor asignado (mock)');
+      this.cargarExpediente(this.solicitud.id);
       return;
     }
 

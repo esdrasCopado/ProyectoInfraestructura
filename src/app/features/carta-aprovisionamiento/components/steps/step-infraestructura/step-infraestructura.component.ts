@@ -44,6 +44,7 @@ export class StepInfraestructuraComponent implements OnInit, OnDestroy {
 
   folioSearchCtrls: FormControl<string>[] = [];
   foliosFiltrados: VpnDisponible[][] = [];
+  folioSinResultados: boolean[] = [];
 
   private subs = new Subscription();
 
@@ -134,8 +135,9 @@ export class StepInfraestructuraComponent implements OnInit, OnDestroy {
 
   private registrarBusquedaFolio(i: number): void {
     const ctrl = new FormControl<string>('', { nonNullable: true });
-    this.folioSearchCtrls[i] = ctrl;
-    this.foliosFiltrados[i]  = [];
+    this.folioSearchCtrls[i]  = ctrl;
+    this.foliosFiltrados[i]   = [];
+    this.folioSinResultados[i] = false;
 
     this.subs.add(
       ctrl.valueChanges.pipe(
@@ -143,7 +145,8 @@ export class StepInfraestructuraComponent implements OnInit, OnDestroy {
         distinctUntilChanged(),
         switchMap(q => q.trim() ? this.cartaService.buscarVpnsPorFolio(q) : of([]))
       ).subscribe(results => {
-        this.foliosFiltrados[i] = results;
+        this.foliosFiltrados[i]   = results;
+        this.folioSinResultados[i] = ctrl.value.trim().length > 0 && results.length === 0;
         this.cdr.markForCheck();
       })
     );
@@ -151,7 +154,22 @@ export class StepInfraestructuraComponent implements OnInit, OnDestroy {
 
   seleccionarFolio(i: number, vpn: VpnDisponible): void {
     this.vpnAt(i).patchValue({ vpnFolio: vpn.folio, vpnIp: vpn.ip ?? '' });
+    this.folioSearchCtrls[i].setValue('', { emitEvent: false });
+    this.folioSinResultados[i] = false;
     this.cdr.markForCheck();
+  }
+
+  agregarFolioVpn(i: number): void {
+    const folio = this.folioSearchCtrls[i].value.trim();
+    if (!folio) return;
+    this.cartaService.agregarFolioVpn(folio).subscribe({
+      next: vpn => {
+        this.seleccionarFolio(i, vpn);
+      },
+      error: err => {
+        console.error('[StepInfraestructura] Error al agregar folio VPN', err);
+      },
+    });
   }
 
   private suscribirTipoVpn(vpnGroup: FormGroup): void {
